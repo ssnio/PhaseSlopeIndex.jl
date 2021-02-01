@@ -40,5 +40,5 @@ e.g. segshift=seglen/2 makes overlapping segments
 
 - `psi::AbstractArray`: channel x channel PSI
 - `psi_se::AbstractArray`: channel x channel PSI standard error
-- `psi_normed::AbstractArray`: normalized PSI by sqrt(nrsmpl)*psi_se
+- `psi_normed::AbstractArray`: normalized PSI
 
