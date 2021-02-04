@@ -38,6 +38,46 @@ end
 
 
 """
+    detrend!(data, n)
+(in place) Linear detrend of signals along first axis
+
+# Arguments
+- `data::AbstractArray`: N-dim array where signal is stored in column-major order
+- `n::Integer`: n = 0 subtracts the mean from data, n = 1 removes the linear trend
+
+**Note**: shape of data must be (signal length, ...)
+
+"""
+function detrend!(data::AbstractArray, n::Integer)
+
+    original_shape = size(data)
+    nsamp = size(data, 1)  # number of samples
+
+    A = Array{Float64}([ones(nsamp) Array(1:nsamp)])
+
+    data = reshape(data, (nsamp, :))  # reshaping data
+    if n==0
+        data .-= mean(data, dims=1)
+    elseif n==1
+        data .-= A * (A\data)
+    end
+    reshape(data, original_shape)
+end
+
+
+"""
+    window = hanning_fun(N)
+
+Hanning window similar to MATLAB implementation
+"""
+function hanning_fun(N::Integer)
+    x = [range(0., 1., length=N+2);]
+    window = map(x -> 0.5*(1-cospi(2*x)), x)
+    return window[2:end-1]
+end
+
+
+"""
     data2para(data, seglen, segshift, eplen, freqlist,
               method, nboot, segave, subave, detrend)
 
@@ -158,29 +198,6 @@ function make_eposeg(data::AbstractArray,
     end
 
     return epseg
-end
-
-
-"""
-    detrend!(data)
-(in place) Linear detrend of signals along first axis
-
-# Arguments
-- `data::AbstractArray`: N-dim array where signal is stored in column-major order
-
-**Note**: shape of data must be (signal length, ...)
-
-"""
-function detrend!(data::AbstractArray)
-
-    original_shape = size(data)
-    nsamp = size(data, 1)  # number of samples
-
-    A = Array{Float64}([ones(nsamp) Array(1:nsamp)])
-
-    data = reshape(data, (nsamp, :))  # reshaping data
-    data .-= A * (A\data)
-    reshape(data, original_shape)
 end
 
 
