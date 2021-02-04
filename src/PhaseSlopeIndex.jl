@@ -114,7 +114,7 @@ function data2para(data::AbstractArray,
 
     # We would like to avoid transpose and copying the data!
     if size(data, 1) < size(data, 2)
-        @info "data is transposed to (#samples, #channels) "
+        @info "data is transposed to (#samples, #channels)"
         data = reshape(data, size(data, 2), size(data, 1))
     end
 
@@ -135,7 +135,12 @@ function data2para(data::AbstractArray,
     nseg = int((eplen - seglen) / segshift) + 1
 
     # size(freqlist) = (freqs, nfbands)
-    if length(freqlist) == 0; freqlist = reshape(Array(1:int(seglen/2)), (:, 1)) end
+    if length(freqlist) == 0; freqlist = reshape(Array(1:int(seglen/2)+1), (:, 1)) end
+    if ndims(freqlist) == 1; freqlist = reshape(freqlist, :, 1) end
+    if size(freqlist, 1) < size(freqlist, 2)
+        @info "freqlist is transposed to (#freq, #nfbands)"
+        freqlist = freqlist'
+    end
     maxfreq = maximum(freqlist)  # TODO: maximum(freqlist, dims=1)
     nfbands = size(freqlist, 2)  # multiple frequency bands
 
