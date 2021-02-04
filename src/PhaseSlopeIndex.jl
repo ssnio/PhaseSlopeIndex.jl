@@ -194,7 +194,7 @@ function make_eposeg(data::AbstractArray,
                      segshift::Integer)::AbstractArray
 
     # preallocation
-    epseg = Array{Complex{Float64}}(undef, seglen, nep, nseg, nchan)
+    epseg = Array{Float64}(undef, seglen, nep, nseg, nchan)
 
     for (i, e) in zip(1:nep, 1:eplen:nep*eplen)
         for (j, s) in zip(1:nseg, 1:segshift:nseg*seglen)
