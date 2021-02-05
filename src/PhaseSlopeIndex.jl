@@ -40,7 +40,7 @@ end
     detrend!(data, n)
 (in place) Linear detrend of signals along first axis
 
-# Arguments
+### Arguments
 - `data::AbstractArray`: N-dim array where signal is in column-major order
 - `n::Integer`: n=0 subtracts mean from data, n=1 removes linear trend
 
@@ -81,7 +81,7 @@ end
 
 Extracts and builds a named tuple of parameters.
 
-# Arguments
+### Arguments
 - `data::AbstractArray`: NxM array for N data points in M channels.
 - `seglen::Integer`: segment length (determinds the frequency resolution).
 - `segshift::Integer`: number of bins by which neighboring segments are shifted.
@@ -89,10 +89,10 @@ e.g. segshift=seglen/2 makes overlapping segments
 - `eplen::Integer`: length of epochs
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
 - `method::String`: standard deviation (error) estimation method
-- `subave::Bool`: if true, subtract average across segments (for continuous data, subave = false)
+- `subave::Bool`: if true, subtract average from CS segments (for continuous data, subave = false)
 - `nboot::Integer`: number of bootstrap resamplings
 
-# Returns
+### Returns
 - `parameters::NamedTuple`: a named tuple of parameters
 
 """
@@ -181,7 +181,7 @@ end
 
 Partitioning data into epochs and segments
 
-# Arguments
+### Arguments
 - `data::AbstractArray`: NxM array for N data points in M channels.
 - `seglen::Integer`: segment length
 - `nep::Integer`: number of epochs
@@ -189,7 +189,7 @@ Partitioning data into epochs and segments
 - `nchan::Integer`: number of channels
 - `segshift::Integer`: number of bins by which neighboring segments are shifted.
 
-# Returns
+### Returns
 - `epseg::AbstractArray`: partitioned data into shape (seglen, nep, nseg, nchan)
 
 **Note**: returned `epseg` may have more data entries than input data.
@@ -221,10 +221,10 @@ end
     cs2ps(cs)
 Cross Spectra to Phase Slope
 
-# Arguments
+### Arguments
 - `cs::AbstractArray`: Cross Spectral array with size (seglen, :, nchan, nchan)
 
-# Returns
+### Returns
 - phase slope index (AbstractArray) as Eq. 3 of the reference paper
 
 **Note**: frequency resolution is assumed to be the resolution of freq. band!
@@ -247,10 +247,10 @@ end
     data2ps(data)
 Epoched segmented data to Cross Spectra
 
-# Arguments
+### Arguments
 - `data::AbstractArray`: Segmented data of shape (maxfreq, nep, nseg, nchan)
 
-# Return
+### Return
 - `cs::AbstractArray{Complex}`: Cross Spectral as eq. 2 of reference paper.
 
 """
@@ -267,16 +267,16 @@ end
 
 preparing Cross Spectra for Phase Slope by segment averaging and subtraction
 
-# Arguments
+### Arguments
 - `data::AbstractArray`: Fourier-transformed detrended epoched segmented data.
 - `cs::AbstractArray`: Cross Spectra of data
 - `fband::AbstractArray`: 1D array of frequency range for PSI calculation
 - `nep::Integer`: number of epochs
-- `segave::Bool`: if true, averages across segments
-- `subave::Bool`: if true, subtract average across segments
+- `segave::Bool`: if true, averages across CS segments
+- `subave::Bool`: if true, subtract average across CS segments
 - `method::String`: standard deviation estimation method
 
-# Returns
+### Returns
 - `_cs_::AbstractArray`: segment averaged and subtracted Cross Spectra
 
 """
@@ -337,7 +337,7 @@ end
                              nboot, segave, subave, detrend])
 calculates phase slope index (PSI)
 
-# Arguments
+### Arguments
 - `data::AbstractArray`: NxM array for N data points in M channels
 - `seglen::Integer`: segment length (determinds the frequency resolution)
 
@@ -347,12 +347,12 @@ calculates phase slope index (PSI)
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
 - `method::String`: standard deviation estimation method (default is "jackknife")
 - `nboot::Integer`: number of bootstrap resamplings (default is 100)
-- `segave::Bool`: if true, average across segments (default is false)
-- `subave::Bool`: if true, subtract average across segments (default is false)
-- `detrend::Bool`: if true, performes a linear detrend across segments (default is false)
-- `window`: window function with interval length as sole necessary argument (default is Hanning)
+- `segave::Bool`: if true, average across CS segments (default is false)
+- `subave::Bool`: if true, subtract average across CS segments (default is false)
+- `detrend::Bool`: if true, performes a 0th-order detrend across raw segments (default is false)
+- `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
 
-# Returns
+### Returns
 - `psi::AbstractArray`: channel x channel PSI
 - `psi_se::AbstractArray`: channel x channel PSI estimated standard error
 
