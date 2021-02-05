@@ -78,8 +78,7 @@ end
 
 
 """
-    data2para(data, seglen, segshift, eplen, freqlist,
-              method, nboot, segave, subave, detrend)
+    data2para(data, seglen, segshift, eplen, freqlist, method, nboot)
 
 Extracts and builds a named tuple of parameters.
 
@@ -87,15 +86,11 @@ Extracts and builds a named tuple of parameters.
 - `data::AbstractArray`: NxM array for N data points in M channels.
 - `seglen::Integer`: segment length (determinds the frequency resolution).
 - `segshift::Integer`: number of bins by which neighboring segments are shifted.
-  e.g. segshift=seglen/2 makes overlapping segments
+e.g. segshift=seglen/2 makes overlapping segments
 - `eplen::Integer`: length of epochs
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
-- `method::String`: standard deviation estimation method
+- `method::String`: standard deviation (error) estimation method
 - `nboot::Integer`: number of bootstrap resamplings
-- `segave::Bool`: if true, average across segments for CS calculation
-- `subave::Bool`: if true, subtract average across segments and epochs for CS calculation
-  (**IMPORTANT**: For just one epoch (e.g. for continuous data) set subave = false)
-- `detrend::Bool`: if true, performes a linear detrend across segments
 
 # Returns
 - `parameters::NamedTuple`: a named tuple of parameters
@@ -107,10 +102,7 @@ function data2para(data::AbstractArray,
                    eplen::Integer,
                    freqlist::AbstractArray,
                    method::String,
-                   nboot::Integer,
-                   segave::Bool,
-                   subave::Bool,
-                   detrend::Bool)
+                   nboot::Integer)
 
     # We would like to avoid transpose and copying the data!
     if size(data, 1) < size(data, 2)
@@ -144,6 +136,15 @@ function data2para(data::AbstractArray,
     maxfreq = maximum(freqlist)  # TODO: maximum(freqlist, dims=1)
     nfbands = size(freqlist, 2)  # multiple frequency bands
 
+    if method == "jackknife"
+        n_resample = nep
+    elseif method == "bootstrap"
+        n_resample = nboot
+    else
+        throw(method * " is not a supported method!" *
+        " Please choose from [jackknife, bootstrap] methods.")
+    end
+
     # we use named tuples to book the parameters
     parameters = (data=data,
                   nsamples=nsamples,
@@ -151,16 +152,12 @@ function data2para(data::AbstractArray,
                   eplen=eplen,
                   nep=nep,
                   method=method,
-                  nboot=nboot,
-                  seglen=seglen,
                   segshift=segshift,
                   nseg=nseg,
                   freqlist=freqlist,
                   maxfreq=maxfreq,
                   nfbands=nfbands,
-                  segave=segave,
-                  subave=subave,
-                  detrend=detrend)
+                  n_resample=n_resample)
 
     return parameters
 end
