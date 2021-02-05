@@ -1,15 +1,14 @@
-isdefined(Base, :__precompile__) && __precompile__()
 
 module PhaseSlopeIndex
 
 using Statistics: mean, std
-using FFTW: fft!
-using DSP: hanning
+using FFTW: fft
 using Einsum
 
 # Exports
 #---
 export data2psi
+
 
 """
     int(x) = floor(Int64, x)
@@ -42,8 +41,8 @@ end
 (in place) Linear detrend of signals along first axis
 
 # Arguments
-- `data::AbstractArray`: N-dim array where signal is stored in column-major order
-- `n::Integer`: n = 0 subtracts the mean from data, n = 1 removes the linear trend
+- `data::AbstractArray`: N-dim array where signal is in column-major order
+- `n::Integer`: n=0 subtracts the mean from data, n=1 removes the linear trend
 
 **Note**: shape of data must be (signal length, ...)
 
@@ -127,8 +126,11 @@ function data2para(data::AbstractArray,
     nseg = int((eplen - seglen) / segshift) + 1
 
     # size(freqlist) = (freqs, nfbands)
-    if length(freqlist) == 0; freqlist = reshape(Array(1:int(seglen/2)+1), (:, 1)) end
-    if ndims(freqlist) == 1; freqlist = reshape(freqlist, :, 1) end
+    if length(freqlist) == 0
+        freqlist = reshape(Array(1:int(seglen/2)+1), (:, 1))
+    elseif ndims(freqlist) == 1
+        freqlist = reshape(freqlist, :, 1)
+    end
     if size(freqlist, 1) < size(freqlist, 2)
         @info "freqlist is transposed to (#freq, #nfbands)"
         freqlist = freqlist'
@@ -195,7 +197,7 @@ function make_eposeg(data::AbstractArray,
 
     for (i, e) in zip(1:nep, 1:eplen:nep*eplen)
         for (j, s) in zip(1:nseg, 1:segshift:nseg*seglen)
-            @inbounds @views epseg[:, i, j, :] = data[e:e+eplen-1, :][s:s+seglen-1, :]
+            @views epseg[:, i, j, :] = data[e:e+eplen-1, :][s:s+seglen-1, :]
         end
     end
 
@@ -208,81 +210,108 @@ end
 Cross Spectra to Phase Slope
 
 # Arguments
-- `cs::AbstractArray`: the cross spectral array with size (seglen, :, nchan, nchan)
+- `cs::AbstractArray`: Cross Spectral array with size (seglen, :, nchan, nchan)
 
 # Returns
 - phase slope index (AbstractArray) as Eq. 3 of the reference paper
 
-**Note**: the frequency resolution is assumed to be the resolution of freq. band!
+**Note**: frequency resolution is assumed to be the resolution of freq. band!
 
 """
 function cs2ps(cs::AbstractArray)
 
-    # size(cs) =!= (seglen, nchan, nchan)
+    # size(cs) = (seglen, nchan, nchan)
     # we don't use df but we slice the fband
 
     # complex coherency
-    @einsum cx_coh[f, i, j] := cs[f, i, j] / sqrt(cs[f, i, i] * cs[f, j, j])
+    @einsum coh[f, i, j] := cs[f, i, j] / sqrt(cs[f, i, i] * cs[f, j, j])
 
     # phase slope (Eq. 3)
-    @views imag.(sum(conj(cx_coh[1:end-1, :, :]) .* cx_coh[2:end, :, :], dims=1))
+    @views imag.(sum(conj(coh[1:end-1, :, :]) .* coh[2:end, :, :], dims=1))
 end
 
 
 """
     data2ps(data)
-Epoched data to Cross Spectra
+Epoched segmented data to Cross Spectra
 
 # Arguments
-- `data::AbstractArray`: segmented and epoched data in shape of (maxfreq, nep, nseg, nchan)
+- `data::AbstractArray`: Segmented data of shape (maxfreq, nep, nseg, nchan)
 
 # Return
-- `cs::AbstractArray{Complex}`: cross spectral as eq. 2 of reference paper.
+- `cs::AbstractArray{Complex}`: Cross Spectral as eq. 2 of reference paper.
 
 """
 function data2cs(data::AbstractArray)
     # cs: cross-spectral matrix
 
     # Eq. 2 size(csepseg) = (maxfreq, nep, nseg, nchan, nchan)
-    @einsum cs[i, j, k, m, n] := data[i, j, k, m] * conj(data[i, j, k, n])
+    @einsum cs[f, e, s, i, j] := data[f, e, s, i] * conj(data[f, e, s, j])
 end
 
 
 """
-    data2cs(data, nboot, method)
-Epoched data to Cross Spectra
+    _cs_ = cs2cs_(data, cs, fband, nep, segave, subave, method)
+
+preparing the Cross Spectra for Phase Slope by segment averaging and subtraction
 
 # Arguments
-- `data::AbstractArray`: cross spectral data in shape of (maxfreq, nep, nseg, nchan, nchan)
-- 'nboot::Integer`: number of bootstrap epochs
-- `method::String`: resampling method ("jackknife" or "bootstrap")
+- `data::AbstractArray`: Fourier-transformed detrended epoched segmented data.
+- `cs::AbstractArray`: Cross Spectra of data
+- `fband::AbstractArray`: 1D array of frequency range for PSI calculation
+- `nep::Integer`: number of epochs
+- `segave::Bool`: if true, averages across segments
+- `subave::Bool`: if true, subtract average across segments
+- `method::String`: standard deviation estimation method
 
-# Return
-- `psi_rs::AbstractArray`: resampling PSI in shape of (nchan, nchan, nboot or nep)
+# Returns
+- `_cs_::AbstractArray`: segment averaged and subtracted Cross Spectra
 
 """
-function cs2ps_std(data::AbstractArray,
-                   nboot::Integer,
-                   method::String)
+function cs2cs_(data::AbstractArray, cs::AbstractArray, fband::AbstractArray,
+                nep::Integer, segave::Bool, subave::Bool, method::String)
 
-    maxfreq, nep, nseg, nchan, nchan = size(data)
-
-    if method == "jackknife"
-        psi_rs = Array{Float64}(undef, nchan, nchan, nep)
-        for z in 1:nep
-            sliced_cs = view(data, :, (1:nep .!=z), :, :, :)
-            @fastmath psi_rs[:, :, z] = cs2ps(dropmean(sliced_cs, (2, 3)))
+    if segave
+        if method == "bootstrap"
+            randboot = rand(1:nep, nep)
+            cs_ = dropmean(view(cs, :, randboot, :, :, :), (2, 3))
+            av_ = dropmean(view(data, fband, randboot, :, :), (2, 3))
+        elseif method == "psi"
+            cs_ = dropmean(cs, (2, 3))
+            av_ = dropmean(view(data, fband, :, :, :), (2, 3))
+        elseif method == "jackknife"
+            cs_ = dropmean(cs, 3)
+            av_ = dropmean(view(data, fband, :, :, :), 3)
         end
-    elseif method == "bootstrap"
-        psi_rs = Array{Float64}(undef, nchan, nchan, nboot)
-        for z in 1:nboot
-            sliced_cs = view(data, :, rand(1:nep, nep), :, :, :)
-            @fastmath psi_rs[:, :, z] = cs2ps(dropmean(sliced_cs, (2, 3)))
+    else
+        if method == "bootstrap"
+            randboot = rand(1:nep, nep)
+            cs_ = dropmean(view(cs, :, randboot, 1, :, :), 2)
+            av_ = dropmean(view(data, fband, randboot, 1, :), 2)
+        elseif method == "psi"
+            cs_ = dropmean(view(cs, :, :, 1, :, :), 2)
+            av_ = dropmean(view(data, fband, :, 1, :), 2)
+        elseif method == "jackknife"
+            cs_ = view(cs, :, :, 1, :, :)
+            av_ = view(data, fband, :, 1, :)
         end
     end
-    return psi_rs
-end
 
+    if subave
+        if method == "bootstrap" || method == "psi"
+            @einsum av_ij[f, i, j] := av_[f, i] * conj(av_[f, j])
+        elseif method == "jackknife"
+            @einsum av_ij[f, e, i, j] := av_[f, e, i] * conj(av_[f, e, j])
+        end
+        _cs_ = squeeze(cs_ - av_ij)
+    else
+        if method == "bootstrap" || method == "psi" || method == "jackknife"
+            _cs_ = squeeze(cs_)
+        end
+    end
+
+    return _cs_
+end
 
 
 """
@@ -300,8 +329,8 @@ e.g. segshift=seglen/2 makes overlapping segments
 - `method::String`: standard deviation estimation method
 - `nboot::Integer`: number of bootstrap resamplings
 - `segave::Bool`: if true, average across segments for CS calculation
-- `subave::Bool`: if true, subtract average across segments and epochs for CS calculation
-(**IMPORTANT**: For just one epoch (e.g. for continuous data) set subave = false)
+- `subave::Bool`: if true, subtract average across segments for CS calculation
+(For just one epoch (e.g. for continuous data) set subave = false)
 - `detrend::Bool`: if true, performes a linear detrend across segments
 
 # Returns
@@ -317,43 +346,59 @@ function data2psi(data::AbstractArray,
                  freqlist::AbstractArray=Int64[],
                  method::String="bootstrap",
                  nboot::Integer=100,
-                 segave::Bool=false,
+                 segave::Bool=true,
                  subave::Bool=false,
-                 detrend::Bool=false)
+                 detrend::Bool=false,
+                 window)
 
-    para = data2para(data, seglen, segshift, eplen, freqlist,
-                     method, nboot, segave, subave, detrend)
+    para = data2para(data, seglen, segshift, eplen, freqlist, method, nboot)
+    (data, nsamples, nchan, eplen, nep, method, segshift,
+            nseg, freqlist, maxfreq, nfbands, n_resample) = para
 
-    eposeg_data = make_eposeg(para.data, para.seglen, para.eplen, para.nep,
-                              para.nseg, para.nchan, para.segshift)
+    eposeg_data = make_eposeg(data, seglen, eplen, nep, nseg, nchan, segshift)
 
-    if para.detrend; detrend!(eposeg_data) end
+    if isa(window, Function); window = window(seglen) end
+    if detrend; detrend!(eposeg_data, 0) end
 
-    eposeg_data .*= hanning(para.seglen)
+    eposeg_data .*= window
 
-    fft!(eposeg_data, 1)
-
-    if para.method == "jackknife"
-        nrsmpl = para.nep
-    elseif para.method == "bootstrap"
-        nrsmpl = para.nboot
-    end
+    eposeg_data = view(fft(eposeg_data, 1), 1:maxfreq, :, :, :)
 
     # preallocation
-    psi = Array{Float64}(undef, para.nfbands, para.nchan, para.nchan)
-    psi_rs = Array{Float64}(undef, para.nfbands, para.nchan, para.nchan, nrsmpl)
+    psi = Array{Float64}(undef, nchan, nchan, nfbands)
+    psi_est = Array{Float64}(undef, nchan, nchan, nfbands, n_resample)
+    for (f, fband) in enumerate(eachrow(freqlist'))
+        cs_full = data2cs(view(eposeg_data, fband, :, :, :))
 
-    for (f, fband) in enumerate(eachrow(para.freqlist'))
-        cs_f = data2cs(view(eposeg_data, fband, :, :, :))
-        psi[f, :, :] = cs2ps(dropmean(cs_f, (2, 3)))
-        psi_rs[f, :, :, :] = cs2ps_std(cs_f, para.nboot, para.method)
+        cs_psi = cs2cs_(eposeg_data, cs_full, fband,
+                        nep, segave, subave, "psi")
+        psi[:, :, f] = cs2ps(cs_psi)
+
+        if method == "jackknife"
+            cs_jack = cs2cs_(eposeg_data, cs_full, fband,
+                             nep, segave, subave, "jackknife")
+            for e in 1:nep
+                cs_jack_se = (nep*cs_psi - view(cs_jack, :, e, :, :))/(nep+1);
+                psi_est[:, :, f, e] = cs2ps(cs_jack_se)
+            end
+
+        elseif method == "bootstrap"
+            for e in 1:nboot
+                cs_boot = cs2cs_(eposeg_data, cs_full, fband,
+                                 nep, segave, subave, "bootstrap")
+                psi_est[:, :, f, e] = cs2ps(cs_boot)
+            end
+        end
     end
 
-    psi_se = squeeze(std(psi_rs, mean=psi, dims=4))
     psi = squeeze(psi)
-    psi_normed = psi ./ (sqrt(para.nep) .* psi_se)
+    if method == "jackknife"
+        psi_se = sqrt(nep) * squeeze(std(psi_est, corrected=true, dims=4))
+    elseif method == "bootstrap"
+        psi_se = squeeze(std(psi_est, corrected=true, dims=4))
+    end
 
-    return psi, psi_se, psi_normed
+    return psi, psi_se
 end
 
 
