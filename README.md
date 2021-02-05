@@ -25,9 +25,9 @@ psi, psi_se = function data2psi(
 ```
 
 ### Arguments
-- `data::AbstractArray`: NxM array for N data points in M channels.
-- `seglen::Integer`: segment length (determinds the frequency resolution).
-- `segshift::Integer`: number of bins by which neighboring segments are shifted.
+- `data::AbstractArray`: NxM array for N data points in M channels
+- `seglen::Integer`: segment length (determinds the frequency resolution)
+- `segshift::Integer`: number of bins by which neighboring segments are shifted
  e.g. segshift=seglen/2 makes overlapping segments
 - `eplen::Integer`: length of epochs
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
