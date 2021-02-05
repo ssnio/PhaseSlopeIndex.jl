@@ -16,7 +16,7 @@ psi, psi_se = function data2psi(
     segshift::Integer = 0,
     eplen::Integer = 0,
     freqlist::AbstractArray = Int64[],
-    method::String = "bootstrap",
+    method::String = "jackknife",
     nboot::Integer = 100,
     segave::Bool = false,
     subave::Bool = false,
@@ -28,17 +28,18 @@ psi, psi_se = function data2psi(
 - `data::AbstractArray`: NxM array for N data points in M channels
 - `seglen::Integer`: segment length (determinds the frequency resolution)
 
-*optional arguments:*
+*optional arguments*
 - `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
-- `eplen::Integer`: length of epochs
-- `freqlist::AbstractArray`: 2D Array where each column is a frequency band
-- `method::String`: standard deviation estimation method
-- `nboot::Integer`: number of bootstrap resamplings
-- `segave::Bool`: if true, average across segments
-- `subave::Bool`: if true, subtract average across segments (for continuous data, subave = false)
-- `detrend::Bool`: if true, performes a linear detrend across segments
+- `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
+- `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
+- `method::String`: standard deviation estimation method (default is "jackknife")
+- `nboot::Integer`: number of bootstrap resamplings (default is 100)
+- `segave::Bool`: if true, average across segments (default is false)
+- `subave::Bool`: if true, subtract average across segments (default is false)
+- `detrend::Bool`: if true, performes a linear detrend across segments (default is false)
 - `window`: window function with interval length as sole necessary argument (default is Hanning)
 
 ### Returns
 - `psi::AbstractArray`: channel x channel PSI
 - `psi_se::AbstractArray`: channel x channel PSI estimated standard error
+
