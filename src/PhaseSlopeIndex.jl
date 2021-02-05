@@ -42,7 +42,7 @@ end
 
 # Arguments
 - `data::AbstractArray`: N-dim array where signal is in column-major order
-- `n::Integer`: n=0 subtracts the mean from data, n=1 removes the linear trend
+- `n::Integer`: n=0 subtracts mean from data, n=1 removes linear trend
 
 **Note**: shape of data must be (signal length, ...)
 
@@ -89,6 +89,7 @@ e.g. segshift=seglen/2 makes overlapping segments
 - `eplen::Integer`: length of epochs
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
 - `method::String`: standard deviation (error) estimation method
+- `subave::Bool`: if true, subtract average across segments (for continuous data, subave = false)
 - `nboot::Integer`: number of bootstrap resamplings
 
 # Returns
@@ -102,6 +103,7 @@ function data2para(
     eplen::Integer,
     freqlist::AbstractArray,
     method::String,
+    subave::Bool,
     nboot::Integer)
 
     # We would like to avoid transpose and copying the data!
@@ -122,6 +124,11 @@ function data2para(
     # if eplen = nsamples: continuous recording
     if eplen == 0 ; eplen = nsamples end
     nep = int(nsamples / eplen)  # number of epochs
+
+    if nep == 1 && subave == true
+        subave = false
+        @warn "subave is set to false for continuous data"
+    end
 
     if segshift == 0 ; segshift = int(seglen / 2) end
     nseg = int((eplen - seglen) / segshift) + 1
@@ -156,6 +163,7 @@ function data2para(
         eplen = eplen,
         nep = nep,
         method = method,
+        subave = subave,
         segshift = segshift,
         nseg = nseg,
         freqlist = freqlist,
@@ -184,7 +192,7 @@ Partitioning data into epochs and segments
 # Returns
 - `epseg::AbstractArray`: partitioned data into shape (seglen, nep, nseg, nchan)
 
-**Note**: The returned `epseg` may have more data entries than the input data.
+**Note**: returned `epseg` may have more data entries than input data.
 
 """
 function make_eposeg(
@@ -257,7 +265,7 @@ end
 """
     _cs_ = cs2cs_(data, cs, fband, nep, segave, subave, method)
 
-preparing the Cross Spectra for Phase Slope by segment averaging and subtraction
+preparing Cross Spectra for Phase Slope by segment averaging and subtraction
 
 # Arguments
 - `data::AbstractArray`: Fourier-transformed detrended epoched segmented data.
@@ -332,17 +340,16 @@ calculates phase slope index (PSI)
 # Arguments
 - `data::AbstractArray`: NxM array for N data points in M channels
 - `seglen::Integer`: segment length (determinds the frequency resolution)
-- `segshift::Integer`: number of bins by which neighboring segments are shifted
- e.g. segshift=seglen/2 makes overlapping segments
-- `eplen::Integer`: length of epochs
-- `freqlist::AbstractArray`: 2D Array where each column is a frequency band
-- `method::String`: standard deviation estimation method
-- `nboot::Integer`: number of bootstrap resamplings
-- `segave::Bool`: if true, average across segments for CS calculation
-- `subave::Bool`: if true, subtract average across segments for CS calculation
-(For just one epoch (e.g. for continuous data) set subave = false)
-- `detrend::Bool`: if true, performes a linear detrend across segments
-- `window`: the window function with interval length as sole necessary argument
+*optional arguments*
+- `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
+- `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
+- `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
+- `method::String`: standard deviation estimation method (default is "jackknife")
+- `nboot::Integer`: number of bootstrap resamplings (default is 100)
+- `segave::Bool`: if true, average across segments (default is false)
+- `subave::Bool`: if true, subtract average across segments (default is false)
+- `detrend::Bool`: if true, performes a linear detrend across segments (default is false)
+- `window`: window function with interval length as sole necessary argument (default is Hanning)
 
 # Returns
 - `psi::AbstractArray`: channel x channel PSI
@@ -355,17 +362,17 @@ function data2psi(
     segshift::Integer = 0,
     eplen::Integer = 0,
     freqlist::AbstractArray = Int64[],
-    method::String = "bootstrap",
+    method::String = "jackknife",
     nboot::Integer = 100,
     segave::Bool = false,
     subave::Bool = false,
     detrend::Bool = false,
-    window)
+    window::Function = hanning_fun)
 
     (
-    data, nsamples, nchan, eplen, nep, method,
+    data, nsamples, nchan, eplen, nep, method, subave,
     segshift, nseg, freqlist, maxfreq, nfbands, n_resample,
-    ) = data2para(data, seglen, segshift, eplen, freqlist, method, nboot)
+    ) = data2para(data, seglen, segshift, eplen, freqlist, method, subave, nboot)
 
     eposeg = make_eposeg(data, seglen, eplen, nep, nseg, nchan, segshift)
 
