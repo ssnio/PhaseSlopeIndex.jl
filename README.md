@@ -37,7 +37,7 @@ psi, psi_se = function data2psi(
 - `segave::Bool`: if true, average across segments (default is false)
 - `subave::Bool`: if true, subtract average across segments (default is false)
 - `detrend::Bool`: if true, performes a linear detrend across segments (default is false)
-- `window`: window function with interval length as sole necessary argument (default is Hanning)
+- `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
 
 ### Returns
 - `psi::AbstractArray`: channel x channel PSI
