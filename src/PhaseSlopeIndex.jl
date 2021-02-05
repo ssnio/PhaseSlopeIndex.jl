@@ -19,7 +19,7 @@ int(x) = floor(Int64, x)
 """
     dropmean(X, d) = dropdims(mean(X, dims=d), dims=d)
 """
-dropmean(X, d) = dropdims(mean(X, dims=d), dims=d)
+dropmean(X, d) = dropdims(mean(X, dims = d), dims = d)
 
 
 """
@@ -30,7 +30,7 @@ removing singleton dimensions
 function squeeze(X::AbstractArray)
     keepd = ()
     for (i, d) in enumerate(size(X))
-        if d != 1; keepd = (keepd..., d) end
+        if d != 1 ; keepd = (keepd..., d) end
     end
     reshape(X, keepd)
 end
@@ -55,10 +55,10 @@ function detrend!(data::AbstractArray, n::Integer)
     A = Array{Float64}([ones(nsamp) Array(1:nsamp)])
 
     data = reshape(data, (nsamp, :))  # reshaping data
-    if n==0
-        data .-= mean(data, dims=1)
-    elseif n==1
-        data .-= A * (A\data)
+    if n == 0
+        data .-= mean(data, dims = 1)
+    elseif n == 1
+        data .-= A * (A \ data)
     end
     reshape(data, original_shape)
 end
@@ -70,8 +70,8 @@ end
 Hanning window similar to MATLAB implementation
 """
 function hanning_fun(N::Integer)
-    x = [range(0., 1., length=N+2);]
-    window = map(x -> 0.5*(1-cospi(2*x)), x)
+    x = [range(0.0, 1.0, length = N + 2);]
+    window = map(x -> 0.5 * (1 - cospi(2 * x)), x)
     return window[2:end-1]
 end
 
@@ -95,13 +95,14 @@ e.g. segshift=seglen/2 makes overlapping segments
 - `parameters::NamedTuple`: a named tuple of parameters
 
 """
-function data2para(data::AbstractArray,
-                   seglen::Integer,
-                   segshift::Integer,
-                   eplen::Integer,
-                   freqlist::AbstractArray,
-                   method::String,
-                   nboot::Integer)
+function data2para(
+    data::AbstractArray,
+    seglen::Integer,
+    segshift::Integer,
+    eplen::Integer,
+    freqlist::AbstractArray,
+    method::String,
+    nboot::Integer)
 
     # We would like to avoid transpose and copying the data!
     if size(data, 1) < size(data, 2)
@@ -120,14 +121,14 @@ function data2para(data::AbstractArray,
 
     # if eplen = nsamples: continuous recording
     if eplen == 0 ; eplen = nsamples end
-    nep = int(nsamples/eplen)  # number of epochs
+    nep = int(nsamples / eplen)  # number of epochs
 
-    if segshift == 0 ; segshift = int(seglen/2) end
+    if segshift == 0 ; segshift = int(seglen / 2) end
     nseg = int((eplen - seglen) / segshift) + 1
 
     # size(freqlist) = (freqs, nfbands)
     if length(freqlist) == 0
-        freqlist = reshape(Array(1:int(seglen/2)+1), (:, 1))
+        freqlist = reshape(Array(1:int(seglen / 2)+1), (:, 1))
     elseif ndims(freqlist) == 1
         freqlist = reshape(freqlist, :, 1)
     end
@@ -143,23 +144,25 @@ function data2para(data::AbstractArray,
     elseif method == "bootstrap"
         n_resample = nboot
     else
-        throw(method * " is not a supported method!" *
-        " Please choose from [jackknife, bootstrap] methods.")
+        throw(method * " is not a supported error estimation method!" *
+                       " Please choose from [jackknife, bootstrap] methods.")
     end
 
     # we use named tuples to book the parameters
-    parameters = (data=data,
-                  nsamples=nsamples,
-                  nchan=nchannels,
-                  eplen=eplen,
-                  nep=nep,
-                  method=method,
-                  segshift=segshift,
-                  nseg=nseg,
-                  freqlist=freqlist,
-                  maxfreq=maxfreq,
-                  nfbands=nfbands,
-                  n_resample=n_resample)
+    parameters = (
+        data = data,
+        nsamples = nsamples,
+        nchan = nchannels,
+        eplen = eplen,
+        nep = nep,
+        method = method,
+        segshift = segshift,
+        nseg = nseg,
+        freqlist = freqlist,
+        maxfreq = maxfreq,
+        nfbands = nfbands,
+        n_resample = n_resample,
+    )
 
     return parameters
 end
@@ -184,13 +187,14 @@ Partitioning data into epochs and segments
 **Note**: The returned `epseg` may have more data entries than the input data.
 
 """
-function make_eposeg(data::AbstractArray,
-                     seglen::Integer,
-                     eplen::Integer,
-                     nep::Integer,
-                     nseg::Integer,
-                     nchan::Integer,
-                     segshift::Integer)::AbstractArray
+function make_eposeg(
+    data::AbstractArray,
+    seglen::Integer,
+    eplen::Integer,
+    nep::Integer,
+    nseg::Integer,
+    nchan::Integer,
+    segshift::Integer)::AbstractArray
 
     # preallocation
     epseg = Array{Float64}(undef, seglen, nep, nseg, nchan)
@@ -227,7 +231,7 @@ function cs2ps(cs::AbstractArray)
     @einsum coh[f, i, j] := cs[f, i, j] / sqrt(cs[f, i, i] * cs[f, j, j])
 
     # phase slope (Eq. 3)
-    @views imag.(sum(conj(coh[1:end-1, :, :]) .* coh[2:end, :, :], dims=1))
+    @views imag.(sum(conj(coh[1:end-1, :, :]) .* coh[2:end, :, :], dims = 1))
 end
 
 
@@ -268,8 +272,14 @@ preparing the Cross Spectra for Phase Slope by segment averaging and subtraction
 - `_cs_::AbstractArray`: segment averaged and subtracted Cross Spectra
 
 """
-function cs2cs_(data::AbstractArray, cs::AbstractArray, fband::AbstractArray,
-                nep::Integer, segave::Bool, subave::Bool, method::String)
+function cs2cs_(
+    data::AbstractArray,
+    cs::AbstractArray,
+    fband::AbstractArray,
+    nep::Integer,
+    segave::Bool,
+    subave::Bool,
+    method::String)
 
     if segave
         if method == "bootstrap"
@@ -339,53 +349,56 @@ e.g. segshift=seglen/2 makes overlapping segments
 - `psi_normed::AbstractArray`: normalized PSI by sqrt(nrsmpl)*psi_se
 
 """
-function data2psi(data::AbstractArray,
-                 seglen::Integer;
-                 segshift::Integer=0,
-                 eplen::Integer=0,
-                 freqlist::AbstractArray=Int64[],
-                 method::String="bootstrap",
-                 nboot::Integer=100,
-                 segave::Bool=true,
-                 subave::Bool=false,
-                 detrend::Bool=false,
-                 window)
+function data2psi(
+    data::AbstractArray,
+    seglen::Integer;
+    segshift::Integer = 0,
+    eplen::Integer = 0,
+    freqlist::AbstractArray = Int64[],
+    method::String = "bootstrap",
+    nboot::Integer = 100,
+    segave::Bool = true,
+    subave::Bool = false,
+    detrend::Bool = false,
+    window)
 
-    para = data2para(data, seglen, segshift, eplen, freqlist, method, nboot)
-    (data, nsamples, nchan, eplen, nep, method, segshift,
-            nseg, freqlist, maxfreq, nfbands, n_resample) = para
+    (
+    data, nsamples, nchan, eplen, nep, method,
+    segshift, nseg, freqlist, maxfreq, nfbands, n_resample,
+    ) = data2para(data, seglen, segshift, eplen, freqlist, method, nboot)
 
-    eposeg_data = make_eposeg(data, seglen, eplen, nep, nseg, nchan, segshift)
+    eposeg = make_eposeg(data, seglen, eplen, nep, nseg, nchan, segshift)
 
-    if isa(window, Function); window = window(seglen) end
-    if detrend; detrend!(eposeg_data, 0) end
+    if detrend
+        detrend!(eposeg, 0)
+    end
 
-    eposeg_data .*= window
+    if isa(window, Function)
+        window = window(seglen)
+    end
+    eposeg .*= window
 
-    eposeg_data = view(fft(eposeg_data, 1), 1:maxfreq, :, :, :)
+    eposeg = view(fft(eposeg, 1), 1:maxfreq, :, :, :)
 
     # preallocation
     psi = Array{Float64}(undef, nchan, nchan, nfbands)
     psi_est = Array{Float64}(undef, nchan, nchan, nfbands, n_resample)
     for (f, fband) in enumerate(eachrow(freqlist'))
-        cs_full = data2cs(view(eposeg_data, fband, :, :, :))
+        cs_full = data2cs(view(eposeg, fband, :, :, :))
 
-        cs_psi = cs2cs_(eposeg_data, cs_full, fband,
-                        nep, segave, subave, "psi")
+        cs_psi = cs2cs_(eposeg, cs_full, fband, nep, segave, subave, "psi")
         psi[:, :, f] = cs2ps(cs_psi)
 
         if method == "jackknife"
-            cs_jack = cs2cs_(eposeg_data, cs_full, fband,
-                             nep, segave, subave, "jackknife")
-            for e in 1:nep
-                cs_jack_se = (nep*cs_psi - view(cs_jack, :, e, :, :))/(nep+1);
+            cs_jack = cs2cs_(eposeg, cs_full, fband, nep, segave, subave, "jackknife")
+            for e = 1:nep
+                cs_jack_se = (nep * cs_psi - view(cs_jack, :, e, :, :)) / (nep + 1)
                 psi_est[:, :, f, e] = cs2ps(cs_jack_se)
             end
 
         elseif method == "bootstrap"
-            for e in 1:nboot
-                cs_boot = cs2cs_(eposeg_data, cs_full, fband,
-                                 nep, segave, subave, "bootstrap")
+            for e = 1:nboot
+                cs_boot = cs2cs_(eposeg, cs_full, fband, nep, segave, subave, "bootstrap")
                 psi_est[:, :, f, e] = cs2ps(cs_boot)
             end
         end
@@ -393,9 +406,9 @@ function data2psi(data::AbstractArray,
 
     psi = squeeze(psi)
     if method == "jackknife"
-        psi_se = sqrt(nep) * squeeze(std(psi_est, corrected=true, dims=4))
+        psi_se = sqrt(nep) * squeeze(std(psi_est, corrected = true, dims = 4))
     elseif method == "bootstrap"
-        psi_se = squeeze(std(psi_est, corrected=true, dims=4))
+        psi_se = squeeze(std(psi_est, corrected = true, dims = 4))
     end
 
     return psi, psi_se
