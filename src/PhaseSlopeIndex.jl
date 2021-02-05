@@ -340,6 +340,7 @@ calculates phase slope index (PSI)
 # Arguments
 - `data::AbstractArray`: NxM array for N data points in M channels
 - `seglen::Integer`: segment length (determinds the frequency resolution)
+
 *optional arguments*
 - `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
 - `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
