@@ -7,6 +7,8 @@ This work was funded by the German Federal Ministry of Education and Research [(
 
 ### Usage
 
+For detailed examples, please see the [PhaseSlopeIndex.jl.ipynb notebook](https://github.com/ssnio/PhaseSlopeIndex.jl/tree/master/notebooks).
+
 The only exported function is `data2psi`:
 
 ```julia
@@ -34,12 +36,13 @@ psi, psi_se = function data2psi(
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
 - `method::String`: standard deviation estimation method (default is "jackknife")
 - `nboot::Integer`: number of bootstrap resamplings (default is 100)
-- `segave::Bool`: if true, average across segments (default is false)
-- `subave::Bool`: if true, subtract average across segments (default is false)
-- `detrend::Bool`: if true, performes a linear detrend across segments (default is false)
+- `segave::Bool`: if true, average across CS segments (default is false)
+- `subave::Bool`: if true, subtract average across CS segments (default is false)
+- `detrend::Bool`: if true, performes a 0th-order detrend across raw segments (default is false)
 - `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
 
 ### Returns
 - `psi::AbstractArray`: channel x channel PSI
 - `psi_se::AbstractArray`: channel x channel PSI estimated standard error
+
 
