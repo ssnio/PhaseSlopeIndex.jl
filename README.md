@@ -7,7 +7,7 @@ This work was funded by the German Federal Ministry of Education and Research [(
 
 ### Usage
 
-For detailed examples, please see the [PhaseSlopeIndex.jl.ipynb notebook](https://github.com/ssnio/PhaseSlopeIndex.jl/tree/master/notebooks).
+For detailed examples, please see the [PhaseSlopeIndex.jl.ipynb](https://github.com/ssnio/PhaseSlopeIndex.jl/tree/master/notebooks).
 
 The only exported function is `data2psi`:
 
