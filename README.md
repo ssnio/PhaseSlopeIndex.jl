@@ -34,8 +34,8 @@ psi, psi_se = function data2psi(
 - `method::String`: standard deviation estimation method
 - `nboot::Integer`: number of bootstrap resamplings
 - `segave::Bool`: if true, average across segments for CS calculation
-- `subave::Bool`: if true, subtract average across segments for CS calculation
-(For single epoch (e.g. for continuous data) set subave = false)
+- `subave::Bool`: if true, subtract average from segments.
+ For single epoch (e.g. for continuous data) set subave = false
 - `detrend::Bool`: if true, performes a linear detrend across segments
 - `window`: the window function with interval length as sole necessary argument
 
