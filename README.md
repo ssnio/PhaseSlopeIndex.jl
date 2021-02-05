@@ -11,33 +11,31 @@ The only exported function is `data2psi`:
 
 ```julia
 psi, psi_se = function data2psi(
-      data::AbstractArray,
-      seglen::Integer;
-      segshift::Integer = 0,
-      eplen::Integer = 0,
-      freqlist::AbstractArray = Int64[],
-      method::String = "bootstrap",
-      nboot::Integer = 100,
-      segave::Bool = false,
-      subave::Bool = false,
-      detrend::Bool = false,
-      window)
+    data::AbstractArray,
+    seglen::Integer;
+    segshift::Integer = 0,
+    eplen::Integer = 0,
+    freqlist::AbstractArray = Int64[],
+    method::String = "bootstrap",
+    nboot::Integer = 100,
+    segave::Bool = false,
+    subave::Bool = false,
+    detrend::Bool = false,
+    window::Function = hanning_fun)
 ```
 
 ### Arguments
 - `data::AbstractArray`: NxM array for N data points in M channels
 - `seglen::Integer`: segment length (determinds the frequency resolution)
-- `segshift::Integer`: number of bins by which neighboring segments are shifted
- e.g. segshift=seglen/2 makes overlapping segments
+- `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
 - `eplen::Integer`: length of epochs
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
 - `method::String`: standard deviation estimation method
 - `nboot::Integer`: number of bootstrap resamplings
-- `segave::Bool`: if true, average across segments for CS calculation
-- `subave::Bool`: if true, subtract average from segments.
- For single epoch (e.g. for continuous data) set subave = false
+- `segave::Bool`: if true, average across segments
+- `subave::Bool`: if true, subtract average across segments (for continuous data, subave = false)
 - `detrend::Bool`: if true, performes a linear detrend across segments
-- `window`: the window function with interval length as sole necessary argument
+- `window`: window function with interval length as sole necessary argument (default is Hanning)
 
 ### Returns
 - `psi::AbstractArray`: channel x channel PSI
