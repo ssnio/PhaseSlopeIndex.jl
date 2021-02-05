@@ -10,35 +10,36 @@ This work was funded by the German Federal Ministry of Education and Research [(
 The only exported function is `data2psi`:
 
 ```julia
-psi, psi_se, psi_normed = data2psi(data::AbstractArray,
-                                   seglen::Integer;
-                                   segshift::Integer=0,
-                                   eplen::Integer=0,
-                                   freqlist::AbstractArray=Int64[],
-                                   method::String="bootstrap",
-                                   nboot::Integer=100,
-                                   segave::Bool=false,
-                                   subave::Bool=false,
-                                   detrend::Bool=false)
+psi, psi_se = function data2psi(
+    data::AbstractArray,
+    seglen::Integer;
+    segshift::Integer = 0,
+    eplen::Integer = 0,
+    freqlist::AbstractArray = Int64[],
+    method::String = "jackknife",
+    nboot::Integer = 100,
+    segave::Bool = false,
+    subave::Bool = false,
+    detrend::Bool = false,
+    window::Function = hanning_fun)
 ```
-#### Arguments
 
-- `data::AbstractArray`: NxM array for N data points in M channels.
-- `seglen::Integer`: segment length (determinds the frequency resolution).
-- `segshift::Integer`: number of bins by which neighboring segments are shifted.
-e.g. segshift=seglen/2 makes overlapping segments
-- `eplen::Integer`: length of epochs
-- `freqlist::AbstractArray`: 2D Array where each column is a frequency band
-- `method::String`: standard deviation estimation method
-- `nboot::Integer`: number of bootstrap resamplings
-- ~~`segave::Bool`: if true, average across segments for CS calculation~~
-- ~~`subave::Bool`: if true, subtract average across segments and epochs for CS calculation
-(**important**: For just one epoch (e.g. for continuous data) set subave = false)~~
-- `detrend::Bool`: if true, performes a linear detrend across segments
+### Arguments
+- `data::AbstractArray`: NxM array for N data points in M channels
+- `seglen::Integer`: segment length (determinds the frequency resolution)
 
-#### Returns
+*optional arguments*
+- `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
+- `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
+- `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
+- `method::String`: standard deviation estimation method (default is "jackknife")
+- `nboot::Integer`: number of bootstrap resamplings (default is 100)
+- `segave::Bool`: if true, average across segments (default is false)
+- `subave::Bool`: if true, subtract average across segments (default is false)
+- `detrend::Bool`: if true, performes a linear detrend across segments (default is false)
+- `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
 
+### Returns
 - `psi::AbstractArray`: channel x channel PSI
-- `psi_se::AbstractArray`: channel x channel PSI standard error
-- `psi_normed::AbstractArray`: normalized PSI
+- `psi_se::AbstractArray`: channel x channel PSI estimated standard error
 
