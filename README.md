@@ -28,7 +28,7 @@ psi, psi_se = function data2psi(
 
 ### Arguments
 - `data::AbstractArray`: NxM array for N data points in M channels
-- `seglen::Integer`: segment length (determinds the frequency resolution)
+- `seglen::Integer`: segment length (determines the frequency resolution)
 
 *optional arguments*
 - `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
@@ -38,11 +38,9 @@ psi, psi_se = function data2psi(
 - `nboot::Integer`: number of bootstrap resamplings (default is 100)
 - `segave::Bool`: if true, average across CS segments (default is false)
 - `subave::Bool`: if true, subtract average across CS segments (default is false)
-- `detrend::Bool`: if true, performes a 0th-order detrend across raw segments (default is false)
+- `detrend::Bool`: if true, performs a 0th-order detrend across raw segments (default is false)
 - `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
 
 ### Returns
-- `psi::AbstractArray`: channel x channel PSI
-- `psi_se::AbstractArray`: channel x channel PSI estimated standard error
-
-
+- `psi::AbstractArray`: Phase Slope Index with shape (channel, channel, frequency bands)
+- `psi_se::AbstractArray`: PSI estimated standard error with shape (channel, channel, frequency bands)
