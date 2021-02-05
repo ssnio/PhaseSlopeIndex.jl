@@ -330,10 +330,10 @@ end
 calculates phase slope index (PSI)
 
 # Arguments
-- `data::AbstractArray`: NxM array for N data points in M channels.
-- `seglen::Integer`: segment length (determinds the frequency resolution).
-- `segshift::Integer`: number of bins by which neighboring segments are shifted.
-e.g. segshift=seglen/2 makes overlapping segments
+- `data::AbstractArray`: NxM array for N data points in M channels
+- `seglen::Integer`: segment length (determinds the frequency resolution)
+- `segshift::Integer`: number of bins by which neighboring segments are shifted
+ e.g. segshift=seglen/2 makes overlapping segments
 - `eplen::Integer`: length of epochs
 - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
 - `method::String`: standard deviation estimation method
@@ -342,11 +342,11 @@ e.g. segshift=seglen/2 makes overlapping segments
 - `subave::Bool`: if true, subtract average across segments for CS calculation
 (For just one epoch (e.g. for continuous data) set subave = false)
 - `detrend::Bool`: if true, performes a linear detrend across segments
+- `window`: the window function with interval length as sole necessary argument
 
 # Returns
 - `psi::AbstractArray`: channel x channel PSI
-- `psi_se::AbstractArray`: channel x channel PSI standard error
-- `psi_normed::AbstractArray`: normalized PSI by sqrt(nrsmpl)*psi_se
+- `psi_se::AbstractArray`: channel x channel PSI estimated standard error
 
 """
 function data2psi(
@@ -357,7 +357,7 @@ function data2psi(
     freqlist::AbstractArray = Int64[],
     method::String = "bootstrap",
     nboot::Integer = 100,
-    segave::Bool = true,
+    segave::Bool = false,
     subave::Bool = false,
     detrend::Bool = false,
     window)
@@ -375,6 +375,8 @@ function data2psi(
 
     if isa(window, Function)
         window = window(seglen)
+    else
+        throw(window * " is not a Function!")
     end
     eposeg .*= window
 
