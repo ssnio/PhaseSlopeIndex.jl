@@ -19,30 +19,35 @@ using Plots: plot, heatmap, cgrad
 using DSP: blackman
 
 # ## Data
-# `mixed_data` four channels, where:
+# `mixed_data` contains four channels, where:
 # - channels 1 and 2 are i.i.d. uniform [0, 1] noise
 # - channel 3 is delayed (by 1 sample) channel 1
 # - channel 4 is delayed (by 16 samples) channel 1 plus i.i.d. uniform [0, 0.2] noise
 
 ## data generation
+T = Float64
 n_channels = 4  # number of channels
-n_samples = 65536  # = 2^16 number of data points measured in each channel
+n_samples = 2^16  # number of data points measured in each channel
 fs = 128  # sampling frequency
-time_array = Array(range(1; step=1 / fs, length=n_samples))
+time_array = Array{T}(range(1; step=1 / fs, length=n_samples))
 
 ## mixed data
-rand_data = randn(Float64, (n_samples + 16, 1)) #
-cause_source = rand_data[16:(n_samples + 15)]  # channel 1
-random_source = randn(Float64, n_samples)  # channel 2
-effect_source = rand_data[15:(n_samples + 14)]  #channel 3
-weak_effect = rand_data[1:n_samples] .- (randn(Float64, (n_samples, 1)) ./ 5)
+range_c4 = 1:n_samples
+range_c1 = range_c4 .+ 16
+range_c3 = range_c1 .- 1
+
+rand_data = randn(T, (n_samples + 16, 1)) # uniform noise
+cause_source = rand_data[range_c1]  # channel 1
+random_source = randn(T, n_samples)  # channel 2, uniform noise
+effect_source = rand_data[range_c3]  #channel 3
+weak_effect = rand_data[range_c4] .- (randn(T, (n_samples, 1)) / 5) # channel 4
 mixed_data = hcat(cause_source, random_source, effect_source, weak_effect)
 
 p1 = plot(
     time_array[1:64],
     mixed_data[1:64, :];
     title="Mixed data",
-    label=["Cause" "Random" "Effect" "noisy Effect"],
+    label=["Cause" "Random" "Effect" "Noisy Effect"],
     linecolor=["red" "green" "blue" "magenta"],
 )
 
