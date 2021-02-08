@@ -1,7 +1,7 @@
 using Documenter, Literate
 using PhaseSlopeIndex
 
-# Use Literate.jl to generate docs and notebooks of examples
+## Use Literate.jl to generate docs and notebooks of examples
 list_of_examples = ["examples.jl"]
 for example in list_of_examples
     Literate.markdown( # markdown for Documenter.jl
@@ -15,7 +15,7 @@ for example in list_of_examples
     )
 end
 
-# Build docs
+## Build docs
 makedocs(;
     sitename="PhaseSlopeIndex.jl",
     format=Documenter.HTML(),
