@@ -26,9 +26,9 @@ using DSP: blackman
 
 ## Data
 `mixed_data` contains four channels, where:
-- channels 1 and 2 are i.i.d. uniform [0, 1] noise
+- channels 1 and 2 are i.i.d. uniform ``[0, 1]`` noise
 - channel 3 is delayed (by 1 sample) channel 1
-- channel 4 is delayed (by 16 samples) channel 1 plus i.i.d. uniform [0, 0.2] noise
+- channel 4 is delayed (by 16 samples) channel 1 plus i.i.d. uniform ``[0, 0.2]`` noise
 
 ```@example examples
 # data generation
@@ -55,7 +55,7 @@ p1 = plot(
     mixed_data[1:64, :];
     title="Mixed data",
     label=["Cause" "Random" "Effect" "Noisy Effect"],
-    #linecolor=["red" "green" "blue" "magenta"],
+    linecolor=["red" "green" "blue" "magenta"],
 )
 
 plot(p1; layout=(1, 1), size=(800, 450))
@@ -67,8 +67,8 @@ plot(p1; layout=(1, 1), size=(800, 450))
 @doc data2psi
 ```
 
-# Example 1.
-PSI is calculated over all frequencies for segmented (`seglen = 100`) but continuous data (single epoch, `nep = 1`) and estimation of error using Bootstrap method for 256 resampling iterations (`nboot=256`). The default window function (Hanning window) is used.
+# Example 1
+PSI is calculated over all frequencies for segmented (`seglen = 100`) but continuous data (single epoch, `nep = 1`) and estimation of error using Bootstrap method for 256 resampling iterations (`nboot=256`). The default window function ([Hanning window](https://en.wikipedia.org/wiki/Hann_function)) is used.
 
 ```@example examples
 seglen = 100  # segment length
@@ -100,8 +100,8 @@ p2 = heatmap(
 plot(p1, p2; layout=(1, 2), size=(720, 300))
 ```
 
-# Example 2.
-PSI is calculated over 3 frequency bands, for partitioned data to segments (`seglen = 100`) and epochs (`eplen = 200`), estimation of error using Jackknife method (default). The window function is set to blackman (imported from DSP.jl). The plots are for only one of the frequency ranges.
+# Example 2
+PSI is calculated over 3 frequency bands, for partitioned data to segments (`seglen = 100`) and epochs (`eplen = 200`), estimation of error using [Jackknife method](https://en.wikipedia.org/wiki/Jackknife_resampling) (default). The window function is set to `blackman` (imported from [DSP.jl](https://github.com/JuliaDSP/DSP.jl)). The plots are for only one of the frequency ranges.
 
 We normalize the PSI by dividing it by estimated standard error.
 
@@ -115,7 +115,7 @@ freqlist = [[5:1:10;] [6:1:11;] [7:1:12;]]
 
 segave = true  # average across CS segments
 subave = true  # subtract average across CS segments
-detrend = true  # performes a 0th-order detrend across raw segments
+detrend = true  # performs a 0th-order detrend across raw segments
 window = blackman  # blackman window function
 
 psi, psi_se = data2psi(
