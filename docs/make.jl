@@ -24,5 +24,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/ssnio/PhaseSlopeIndex.jl.git", devbranch="main", branch="gh-pages"
+    repo="github.com/ssnio/PhaseSlopeIndex.jl.git", devbranch="master", branch="gh-pages"
 )
