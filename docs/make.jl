@@ -7,7 +7,7 @@ for example in list_of_examples
     Literate.markdown( # markdown for Documenter.jl
         joinpath(@__DIR__, "literate", example),
         joinpath(@__DIR__, "src");
-        documenter = true,
+        documenter=true,
     )
     Literate.notebook( # markdown for Documenter.jl
         joinpath(@__DIR__, "literate", example),
@@ -20,14 +20,9 @@ makedocs(;
     sitename="PhaseSlopeIndex.jl",
     format=Documenter.HTML(),
     modules=[PhaseSlopeIndex],
-    pages=[
-        "Home" => "index.md",
-        "Examples" => "examples.md",
-    ],
+    pages=["Home" => "index.md", "Examples" => "examples.md"],
 )
 
 deploydocs(;
-    repo="github.com/adrhill/PhaseSlopeIndex.jl.git",
-    devbranch="main",
-    branch="gh-pages",
+    repo="github.com/ssnio/PhaseSlopeIndex.jl.git", devbranch="main", branch="gh-pages"
 )
