@@ -1,9 +1,0 @@
-*.jl.*.cov
-*.jl.cov
-*.jl.mem
-/docs/build/
-.gitignore
-/Manifest.toml
-/.vscode
-.DS_Store
-.ipynb_checkpoints
