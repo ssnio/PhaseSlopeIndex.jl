@@ -120,7 +120,7 @@ function data2para(
     end
 
     # if eplen = nsamples: continuous recording
-    if eplen == 0 ; eplen = nsamples end
+    eplen == 0 && (eplen = nsamples)
     nep = int(nsamples / eplen)  # number of epochs
 
     if nep == 1 && subave == true
@@ -128,7 +128,7 @@ function data2para(
         @warn "subave is set to false for continuous data"
     end
 
-    if segshift == 0 ; segshift = int(seglen / 2) end
+    segshift == 0 && (segshift = int(seglen / 2))
     nseg = int((eplen - seglen) / segshift) + 1
 
     # size(freqlist) = (freqs, nfbands)
