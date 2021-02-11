@@ -10,9 +10,9 @@ using Einsum
 export data2psi
 
 """
-    int(x) = floor(Int64, x)
+    int(x) = trunc(Int, x)
 """
-int(x) = trunc(Int64, x)
+int(x) = trunc(Int, x)
 
 """
     dropmean(X, d) = dropdims(mean(X, dims=d), dims=d)
@@ -346,7 +346,7 @@ function data2psi(
     seglen::Integer;
     segshift::Integer = 0,
     eplen::Integer = 0,
-    freqlist::AbstractArray = Int64[],
+    freqlist::AbstractArray = Int[],
     method::String = "jackknife",
     nboot::Integer = 100,
     segave::Bool = true,
