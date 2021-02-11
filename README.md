@@ -1,5 +1,10 @@
 # PhaseSlopeIndex.jl
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://ssnio.github.io/PhaseSlopeIndex.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://ssnio.github.io/PhaseSlopeIndex.jl/dev)
+[![Build Status](https://github.com/ssnio/PhaseSlopeIndex.jl/workflows/CI/badge.svg)](https://ssnio.github.io/PhaseSlopeIndex.jl/actions)
+[![Coverage](https://codecov.io/gh/ssnio/PhaseSlopeIndex.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ssnio/PhaseSlopeIndex.jl)
+
 This is a JuliaLang implementation of *Phase Slope Index* method, proposed in "*Robustly Estimating the Flow Direction of Information in Complex Physical Systems*" , by *Guido Nolte, Andreas Ziehe, Vadim V. Nikulin, Alois Schlögl, Nicole Krämer, Tom Brismar, and Klaus-Robert Müller* (please see http://doc.ml.tu-berlin.de/causality/ and [Nolte et al. 2008](http://link.aps.org/abstract/PRL/v100/e234101)).
 
 ### Acknowledgement
