@@ -31,10 +31,7 @@ end
 removing singleton dimensions
 """
 function squeeze(X::AbstractArray)
-    keepd = ()
-    for (i, d) in enumerate(size(X))
-        if d != 1 ; keepd = (keepd..., d) end
-    end
+    keepd = Tuple(d for d in size(X) if d != 1)
     reshape(X, keepd)
 end
 
