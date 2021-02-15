@@ -115,6 +115,9 @@ function data2para(
         @info "data is transposed to (#samples, #channels)"
         data = reshape(data, size(data, 2), size(data, 1))
     end
+    if size(data, 1) < seglen
+        throw(DimensionMismatch("seglen must be smaller than number of samples!"))
+    end
 
     # number of samples per channel and number of channels
     nsamples, nchannels = size(data)
