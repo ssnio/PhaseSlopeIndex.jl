@@ -373,12 +373,7 @@ function data2psi(
         detrend!(eposeg, 0)
     end
 
-    if isa(window, Function)
-        window = window(seglen)
-    else
-        throw(window * " is not a Function!")
-    end
-    eposeg .*= window
+    eposeg .*= window(seglen)
 
     eposeg = view(fft(eposeg, 1), 1:maxfreq, :, :, :)
 
