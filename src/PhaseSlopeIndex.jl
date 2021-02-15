@@ -122,7 +122,8 @@ function data2para(
     # number of samples per channel and number of channels
     nsamples, nchannels = size(data)
 
-    # jackknife check
+    # method shall always be lowercase
+    method = lowercase(method)
     if eplen == 0
         @warn "Epoch length = 0 => No estimation of standard deviation."
         method = "none"
