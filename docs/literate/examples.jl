@@ -56,11 +56,11 @@ plot(p1; layout=(1, 1), size=(800, 450))
 @doc data2psi
 
 # # Example 1
-# PSI is calculated over all frequencies for segmented (`seglen = 100`) but continuous data (single epoch, `nep = 1`) and estimation of error using Bootstrap method for 256 resampling iterations (`nboot=256`). The default window function ([Hanning window](https://en.wikipedia.org/wiki/Hann_function)) is used.
+# PSI is calculated over all frequencies for segmented (`seglen = 100`) but continuous data (single epoch, `nep = 1`) and estimation of standard deviation using Bootstrap method for 256 resampling iterations (`nboot=256`). The default window function ([Hanning window](https://en.wikipedia.org/wiki/Hann_function)) is used.
 
 seglen = 100  # segment length
 nboot = 256  # number of bootstrap iterations
-method = "bootstrap"  # standard error estimation method
+method = "bootstrap"  # standard deviation estimation method
 
 psi, psi_std = data2psi(mixed_data, seglen; nboot=nboot, method=method)
 
@@ -81,19 +81,19 @@ p2 = heatmap(
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     xticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     color=cgrad(:grays; rev=true),
-    title="PSI standard error",
+    title="PSI standard deviation",
 )
 
 plot(p1, p2; layout=(1, 2), size=(720, 300))
 
 # # Example 2
-# PSI is calculated over 3 frequency bands, for partitioned data to segments (`seglen = 100`) and epochs (`eplen = 200`), estimation of error using [Jackknife method](https://en.wikipedia.org/wiki/Jackknife_resampling) (default). The window function is set to `blackman` (imported from [DSP.jl](https://github.com/JuliaDSP/DSP.jl)). The plots are for only one of the frequency ranges.
+# PSI is calculated over 3 frequency bands, for partitioned data to segments (`seglen = 100`) and epochs (`eplen = 200`), estimation of psi_stdor using [Jackknife method](https://en.wikipedia.org/wiki/Jackknife_resampling) (default). The window function is set to `blackman` (imported from [DSP.jl](https://github.com/JuliaDSP/DSP.jl)). The plots are for only one of the frequency ranges.
 #
-# We normalize the PSI by dividing it by estimated standard error.
+# We normalize the PSI by dividing it by estimated standard deviation.
 
 seglen = 100  # segment length
 eplen = 200  # epoch length
-method = "jackknife"  # standard error estimation method
+method = "jackknife"  # standard deviation estimation method
 
 ## three frequency bands
 freqlist = [[5:1:10;] [6:1:11;] [7:1:12;]]
@@ -134,7 +134,7 @@ p2 = heatmap(
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     xticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     color=cgrad(:grays; rev=true),
-    title="PSI standard error",
+    title="PSI standard psi_stdor",
 )
 
 p3 = heatmap(
