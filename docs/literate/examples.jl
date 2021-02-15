@@ -62,7 +62,7 @@ seglen = 100  # segment length
 nboot = 256  # number of bootstrap iterations
 method = "bootstrap"  # standard error estimation method
 
-psi, psi_se = data2psi(mixed_data, seglen; nboot=nboot, method=method)
+psi, psi_std = data2psi(mixed_data, seglen; nboot=nboot, method=method)
 
 p1 = heatmap(
     psi;
@@ -75,7 +75,7 @@ p1 = heatmap(
 )
 
 p2 = heatmap(
-    replace!(psi_se, NaN=>0);
+    replace!(psi_std, NaN=>0);
     ticks=false,
     yflip=true,
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
@@ -103,7 +103,7 @@ subave = true  # subtract average across CS segments
 detrend = true  # performs a 0th-order detrend across raw segments
 window = blackman  # blackman window function
 
-psi, psi_se = data2psi(
+psi, psi_std = data2psi(
     mixed_data,
     seglen;
     subave=subave,
@@ -115,7 +115,7 @@ psi, psi_se = data2psi(
     window=blackman,
 )
 
-psi_normed = psi ./ (psi_se .+ eps())
+psi_normed = psi ./ (psi_std .+ eps())
 
 p1 = heatmap(
     psi[:, :, 1];
@@ -128,7 +128,7 @@ p1 = heatmap(
 )
 
 p2 = heatmap(
-    psi_se[:, :, 1];
+    psi_std[:, :, 1];
     ticks=false,
     yflip=true,
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
