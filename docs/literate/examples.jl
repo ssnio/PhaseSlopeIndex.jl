@@ -134,7 +134,7 @@ p2 = heatmap(
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     xticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     color=cgrad(:grays; rev=true),
-    title="PSI standard psi_stdor",
+    title="PSI standard deviation",
 )
 
 p3 = heatmap(
