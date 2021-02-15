@@ -1,4 +1,4 @@
-# # Phase Slope Index method
+# # Phase Slope Index method: Notebook
 #
 # ### Purpose
 # This is a walk-through notebook on *Robustly Estimating the Flow Direction of Information in Complex Physical Systems* paper, by *Guido Nolte, Andreas Ziehe, Vadim V. Nikulin, Alois Schlögl, Nicole Krämer, Tom Brismar, and Klaus-Robert Müller*, implemented in Julia-Language (please see http://doc.ml.tu-berlin.de/causality/ and [Nolte et al. 2008](http://link.aps.org/abstract/PRL/v100/e234101)).
@@ -10,7 +10,7 @@
 # ### Acknowledgement
 # This work was funded by the German Federal Ministry of Education and Research [(BMBF)](https://www.bmbf.de/) in the project ALICE III under grant ref. 01IS18049B.
 #
-# ## Load packages
+# ### Load packages
 
 using PhaseSlopeIndex
 using Random: randperm
@@ -18,7 +18,7 @@ using MAT: matread
 using Plots: plot, heatmap, cgrad
 using DSP: blackman
 
-# ## Data
+# ### Data
 # `mixed_data` contains four channels, where:
 # - channels 1 and 2 are i.i.d. uniform ``[0, 1]`` noise
 # - channel 3 is delayed (by 1 sample) channel 1
@@ -56,7 +56,7 @@ plot(p1; layout=(1, 1), size=(800, 450))
 # ## PSI
 @doc data2psi
 
-# # Example 1
+# ## Example 1
 # PSI is calculated over all frequencies for segmented (`seglen = 100`) but continuous data (single epoch, `nep = 1`) and estimation of error using Bootstrap method for 256 resampling iterations (`nboot=256`). The default window function ([Hanning window](https://en.wikipedia.org/wiki/Hann_function)) is used.
 
 seglen = 100  # segment length
@@ -87,7 +87,7 @@ p2 = heatmap(
 
 plot(p1, p2; layout=(1, 2), size=(720, 300))
 
-# # Example 2
+# ## Example 2
 # PSI is calculated over 3 frequency bands, for partitioned data to segments (`seglen = 100`) and epochs (`eplen = 200`), estimation of error using [Jackknife method](https://en.wikipedia.org/wiki/Jackknife_resampling) (default). The window function is set to `blackman` (imported from [DSP.jl](https://github.com/JuliaDSP/DSP.jl)). The plots are for only one of the frequency ranges.
 #
 # We normalize the PSI by dividing it by estimated standard error.
