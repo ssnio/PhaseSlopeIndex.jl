@@ -108,10 +108,10 @@ function data2para(
     # data dimension
     if ndims(data) != 2
         data = squeeze(data)
-        @info "data is squeezed to a 2D-array)"
         if ndims(data) != 2
-            throw(DimensionMismatch(x, "must be a 2D-array!"))
+            throw(DimensionMismatch("data must be a 2D-array!"))
         end
+        @info "data is squeezed to a 2D-array)"
     end
     if size(data, 1) < size(data, 2)
         @info "data is transposed to (#samples, #channels)"
