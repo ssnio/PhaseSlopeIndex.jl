@@ -13,7 +13,6 @@
 # ## Load packages
 
 using PhaseSlopeIndex
-using Random: randperm
 using MAT: matread
 using Plots: plot, heatmap, cgrad
 using DSP: blackman
