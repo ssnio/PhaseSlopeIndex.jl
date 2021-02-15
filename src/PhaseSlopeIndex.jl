@@ -108,9 +108,7 @@ function data2para(
     # data dimension
     if ndims(data) != 2
         data = squeeze(data)
-        if ndims(data) != 2
-            throw(DimensionMismatch("data must be a 2D-array!"))
-        end
+        ndims(data) != 2 && throw(DimensionMismatch("data must be a 2D-array!"))
         @info "data is squeezed to a 2D-array)"
     end
     if size(data, 1) < size(data, 2)
