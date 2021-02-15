@@ -89,6 +89,7 @@ Extracts and builds a named tuple of parameters.
   - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
   - `method::String`: standard deviation estimation method
   - `subave::Bool`: if true, subtract average from CS segments (for continuous data, subave = false)
+  - `verbose::Bool`: if true, warnings and info logs would be echoed.
 
 ### Returns
 
@@ -102,6 +103,7 @@ function data2para(
     freqlist::AbstractArray,
     method::String,
     subave::Bool,
+    verbose::Bool
 )
     # data dimension
     if ndims(data) != 2
@@ -182,7 +184,6 @@ Partitioning data into epochs and segments
   - `nseg::Integer`: number of segments per epoch
   - `nchan::Integer`: number of channels
   - `segshift::Integer`: number of bins by which neighboring segments are shifted.
-  - `verbose::Bool`: if true, warnings and info logs would be echoed.
 
 ### Returns
 
@@ -198,7 +199,6 @@ function make_eposeg(
     nseg::Integer,
     nchan::Integer,
     segshift::Integer,
-    verbose::Bool
 )::AbstractArray
 
     # preallocation
