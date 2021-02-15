@@ -150,8 +150,8 @@ function data2para(
         @info "freqlist is transposed to (#freq, #nfbands)"
         freqlist = freqlist'
     end
-    maxfreq = maximum(freqlist)  # TODO: maximum(freqlist, dims=1)
-    nfbands = size(freqlist, 2)  # multiple frequency bands
+    maxfreq = maximum(freqlist)  # max frequency of all frequency bands
+    nfbands = size(freqlist, 2)  # number of frequency bands
 
     # we use named tuples to book the parameters
     parameters = (
