@@ -13,7 +13,6 @@
 # ### Load packages
 
 using PhaseSlopeIndex
-using Random: randperm
 using MAT: matread
 using Plots: plot, heatmap, cgrad
 using DSP: blackman
@@ -61,9 +60,9 @@ plot(p1; layout=(1, 1), size=(800, 450))
 
 seglen = 100  # segment length
 nboot = 256  # number of bootstrap iterations
-method = "bootstrap"  # standard error estimation method
+method = "bootstrap"  # standard deviation estimation method
 
-psi, psi_se = data2psi(mixed_data, seglen; nboot=nboot, method=method)
+psi, psi_std = data2psi(mixed_data, seglen; nboot=nboot, method=method)
 
 p1 = heatmap(
     psi;
@@ -76,13 +75,13 @@ p1 = heatmap(
 )
 
 p2 = heatmap(
-    psi_se;
+    replace!(psi_std, NaN=>0);
     ticks=false,
     yflip=true,
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     xticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     color=cgrad(:grays; rev=true),
-    title="PSI standard error",
+    title="PSI standard deviation",
 )
 
 plot(p1, p2; layout=(1, 2), size=(720, 300))
@@ -90,11 +89,11 @@ plot(p1, p2; layout=(1, 2), size=(720, 300))
 # ## Example 2
 # PSI is calculated over 3 frequency bands, for partitioned data to segments (`seglen = 100`) and epochs (`eplen = 200`), estimation of error using [Jackknife method](https://en.wikipedia.org/wiki/Jackknife_resampling) (default). The window function is set to `blackman` (imported from [DSP.jl](https://github.com/JuliaDSP/DSP.jl)). The plots are for only one of the frequency ranges.
 #
-# We normalize the PSI by dividing it by estimated standard error.
+# We normalize the PSI by dividing it by estimated standard deviation.
 
 seglen = 100  # segment length
 eplen = 200  # epoch length
-method = "jackknife"  # standard error estimation method
+method = "jackknife"  # standard deviation estimation method
 
 ## three frequency bands
 freqlist = [[5:1:10;] [6:1:11;] [7:1:12;]]
@@ -104,7 +103,7 @@ subave = true  # subtract average across CS segments
 detrend = true  # performs a 0th-order detrend across raw segments
 window = blackman  # blackman window function
 
-psi, psi_se = data2psi(
+psi, psi_std = data2psi(
     mixed_data,
     seglen;
     subave=subave,
@@ -116,7 +115,7 @@ psi, psi_se = data2psi(
     window=blackman,
 )
 
-psi_normed = psi ./ (psi_se .+ eps())
+psi_normed = psi ./ (psi_std .+ eps())
 
 p1 = heatmap(
     psi[:, :, 1];
@@ -129,13 +128,13 @@ p1 = heatmap(
 )
 
 p2 = heatmap(
-    psi_se[:, :, 1];
+    psi_std[:, :, 1];
     ticks=false,
     yflip=true,
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     xticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
     color=cgrad(:grays; rev=true),
-    title="PSI standard error",
+    title="PSI standard deviation",
 )
 
 p3 = heatmap(

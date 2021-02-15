@@ -416,7 +416,6 @@ function data2psi(
         end
     end
 
-    psi = squeeze(psi)
     if method == "jackknife"
         psi_std = sqrt(nep) * squeeze(std(psi_est; corrected=true, dims=4))
     elseif method == "bootstrap"
@@ -424,6 +423,9 @@ function data2psi(
     else
         psi_std = fill(NaN, (nchan, nchan, nfbands))
     end
+
+    psi = squeeze(psi)
+    psi_std = squeeze(psi_std)
 
     return psi, psi_std
 end
