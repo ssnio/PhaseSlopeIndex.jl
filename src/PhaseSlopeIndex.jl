@@ -38,8 +38,8 @@ end
 """
     detrend!(data, n)
 
-(in place) Linear detrend of signals along first axis
-
+(in place) Linear detrend of signals along first axis removing the n-th order polynomial.
+This detrend function is limited to linear orders (0th and 1st order).
 ### Arguments
 
   - `data::AbstractArray`: N-dim array where signal is in column-major order
