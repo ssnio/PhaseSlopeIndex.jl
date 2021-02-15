@@ -176,6 +176,7 @@ Partitioning data into epochs and segments
   - `nseg::Integer`: number of segments per epoch
   - `nchan::Integer`: number of channels
   - `segshift::Integer`: number of bins by which neighboring segments are shifted.
+  - `verbose::Bool`: if true, warnings and info logs would be echoed.
 
 ### Returns
 
@@ -191,6 +192,7 @@ function make_eposeg(
     nseg::Integer,
     nchan::Integer,
     segshift::Integer,
+    verbose::Bool
 )::AbstractArray
 
     # preallocation
@@ -344,6 +346,7 @@ calculates phase slope index (PSI)
   - `nboot::Integer`: number of bootstrap resamplings (default is 100)
   - `detrend::Bool`: if true, performs a 0th-order detrend across raw segments (default is false)
   - `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
+  - `verbose::Bool`: if true, warnings and info logs would be echoed. (default is false)
 
 ### Returns
 
@@ -362,9 +365,10 @@ function data2psi(
     nboot::Integer=100,
     detrend::Bool=false,
     window::Function=hanning_fun,
+    verbose::Bool=false
 )
     (data, nsamples, nchan, eplen, nep, method, subave, segshift, nseg, freqlist, maxfreq, nfbands) = data2para(
-        data, seglen, segshift, eplen, freqlist, method, subave
+        data, seglen, segshift, eplen, freqlist, method, subave, verbose
     )
 
     eposeg = make_eposeg(data, seglen, eplen, nep, nseg, nchan, segshift)
