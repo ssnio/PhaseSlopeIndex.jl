@@ -103,8 +103,14 @@ function data2para(
     method::String,
     subave::Bool,
 )
-
-    # We would like to avoid transpose and copying the data!
+    # data dimension
+    if ndims(data) != 2
+        data = squeeze(data)
+        @info "data is squeezed to a 2D-array)"
+        if ndims(data) != 2
+            throw(DimensionMismatch(x, "must be a 2D-array!"))
+        end
+    end
     if size(data, 1) < size(data, 2)
         @info "data is transposed to (#samples, #channels)"
         data = reshape(data, size(data, 2), size(data, 1))
