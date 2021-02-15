@@ -339,9 +339,9 @@ calculates phase slope index (PSI)
   - `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
   - `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
   - `method::String`: standard deviation estimation method (default is "jackknife")
-  - `nboot::Integer`: number of bootstrap resamplings (default is 100)
-  - `segave::Bool`: if true, average across CS segments (default is true)
   - `subave::Bool`: if true, subtract average across CS segments (default is false)
+  - `segave::Bool`: if true, average across CS segments (default is true)
+  - `nboot::Integer`: number of bootstrap resamplings (default is 100)
   - `detrend::Bool`: if true, performs a 0th-order detrend across raw segments (default is false)
   - `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
 
@@ -357,9 +357,9 @@ function data2psi(
     eplen::Integer=0,
     freqlist::AbstractArray=Int[],
     method::String="jackknife",
-    nboot::Integer=100,
-    segave::Bool=true,
     subave::Bool=false,
+    segave::Bool=true,
+    nboot::Integer=100,
     detrend::Bool=false,
     window::Function=hanning_fun,
 )
