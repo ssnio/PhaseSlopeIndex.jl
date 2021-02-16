@@ -31,8 +31,6 @@ p1 = plot(
 
 plot(p1; layout=(1, 1), size=(800, 450))
 
-@doc data2psi
-
 seglen = 100  # segment length
 nboot = 256  # number of bootstrap iterations
 method = "bootstrap"  # standard deviation estimation method
