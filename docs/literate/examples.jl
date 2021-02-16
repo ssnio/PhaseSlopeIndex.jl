@@ -75,7 +75,7 @@ p1 = heatmap(
 )
 
 p2 = heatmap(
-    replace!(psi_std, NaN=>0);
+    replace!(psi_std, NaN => 0);
     ticks=false,
     yflip=true,
     yticks=([1, 2, 3, 4], ["Ch1", "Ch2", "Ch3", "Ch4"]),
