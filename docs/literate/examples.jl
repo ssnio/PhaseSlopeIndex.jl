@@ -4,8 +4,8 @@
 # This is a walk-through notebook on *Robustly Estimating the Flow Direction of Information in Complex Physical Systems* paper, by *Guido Nolte, Andreas Ziehe, Vadim V. Nikulin, Alois Schlögl, Nicole Krämer, Tom Brismar, and Klaus-Robert Müller*, implemented in Julia-Language (please see http://doc.ml.tu-berlin.de/causality/ and [Nolte et al. 2008](http://link.aps.org/abstract/PRL/v100/e234101)).
 #
 #md # The notebook can be viewed here:
-#md # * [![binder](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__/notebooks/examples.ipynb)
-#md # * [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](@__NBVIEWER_ROOT_URL__/notebooks/examples.ipynb)
+#md # * [![binder](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__/generated/examples.ipynb)
+#md # * [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](@__NBVIEWER_ROOT_URL__/generated/examples.ipynb)
 #
 # ### Acknowledgement
 # This work was funded by the German Federal Ministry of Education and Research [(BMBF)](https://www.bmbf.de/) in the project ALICE III under grant ref. 01IS18049B.
@@ -38,7 +38,7 @@ range_c3 = range_c1 .- 1
 rand_data = randn(T, (n_samples + 16, 1)) # uniform noise
 cause_source = rand_data[range_c1]  # channel 1
 random_source = randn(T, n_samples)  # channel 2, uniform noise
-effect_source = rand_data[range_c3]  #channel 3
+effect_source = rand_data[range_c3]  # channel 3
 weak_effect = rand_data[range_c4] .- (randn(T, (n_samples, 1)) / 5) # channel 4
 mixed_data = hcat(cause_source, random_source, effect_source, weak_effect)
 
