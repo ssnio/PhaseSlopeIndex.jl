@@ -38,8 +38,8 @@ end
 """
     detrend!(data, n)
 
-(in place) Linear detrend of signals along first axis
-
+(in place) Linear detrend of signals along first axis removing the n-th order polynomial.
+This detrend function is limited to linear orders (0th and 1st order).
 ### Arguments
 
   - `data::AbstractArray`: N-dim array where signal is in column-major order
@@ -89,6 +89,7 @@ Extracts and builds a named tuple of parameters.
   - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
   - `method::String`: standard deviation estimation method
   - `subave::Bool`: if true, subtract average from CS segments (for continuous data, subave = false)
+  - `verbose::Bool`: if true, warnings and info logs would be echoed.
 
 ### Returns
 
@@ -102,18 +103,27 @@ function data2para(
     freqlist::AbstractArray,
     method::String,
     subave::Bool,
+    verbose::Bool
 )
-
-    # We would like to avoid transpose and copying the data!
+    # data dimension
+    if ndims(data) != 2
+        data = squeeze(data)
+        ndims(data) != 2 && throw(DimensionMismatch("data must be a 2D-array!"))
+        @info "data is squeezed to a 2D-array)"
+    end
     if size(data, 1) < size(data, 2)
         @info "data is transposed to (#samples, #channels)"
         data = reshape(data, size(data, 2), size(data, 1))
+    end
+    if size(data, 1) < seglen
+        throw(DimensionMismatch("seglen must be smaller than number of samples!"))
     end
 
     # number of samples per channel and number of channels
     nsamples, nchannels = size(data)
 
-    # jackknife check
+    # method shall always be lowercase
+    method = lowercase(method)
     if eplen == 0
         @warn "Epoch length = 0 => No estimation of standard deviation."
         method = "none"
@@ -141,8 +151,8 @@ function data2para(
         @info "freqlist is transposed to (#freq, #nfbands)"
         freqlist = freqlist'
     end
-    maxfreq = maximum(freqlist)  # TODO: maximum(freqlist, dims=1)
-    nfbands = size(freqlist, 2)  # multiple frequency bands
+    maxfreq = maximum(freqlist)  # max frequency of all frequency bands
+    nfbands = size(freqlist, 2)  # number of frequency bands
 
     # we use named tuples to book the parameters
     parameters = (
@@ -339,11 +349,12 @@ calculates phase slope index (PSI)
   - `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
   - `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
   - `method::String`: standard deviation estimation method (default is "jackknife")
-  - `nboot::Integer`: number of bootstrap resamplings (default is 100)
-  - `segave::Bool`: if true, average across CS segments (default is true)
   - `subave::Bool`: if true, subtract average across CS segments (default is false)
+  - `segave::Bool`: if true, average across CS segments (default is true)
+  - `nboot::Integer`: number of bootstrap resamplings (default is 100)
   - `detrend::Bool`: if true, performs a 0th-order detrend across raw segments (default is false)
   - `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
+  - `verbose::Bool`: if true, warnings and info logs would be echoed. (default is false)
 
 ### Returns
 
@@ -357,14 +368,15 @@ function data2psi(
     eplen::Integer=0,
     freqlist::AbstractArray=Int[],
     method::String="jackknife",
-    nboot::Integer=100,
-    segave::Bool=true,
     subave::Bool=false,
+    segave::Bool=true,
+    nboot::Integer=100,
     detrend::Bool=false,
     window::Function=hanning_fun,
+    verbose::Bool=false
 )
     (data, nsamples, nchan, eplen, nep, method, subave, segshift, nseg, freqlist, maxfreq, nfbands) = data2para(
-        data, seglen, segshift, eplen, freqlist, method, subave
+        data, seglen, segshift, eplen, freqlist, method, subave, verbose
     )
 
     eposeg = make_eposeg(data, seglen, eplen, nep, nseg, nchan, segshift)
@@ -373,12 +385,7 @@ function data2psi(
         detrend!(eposeg, 0)
     end
 
-    if isa(window, Function)
-        window = window(seglen)
-    else
-        throw(window * " is not a Function!")
-    end
-    eposeg .*= window
+    eposeg .*= window(seglen)
 
     eposeg = view(fft(eposeg, 1), 1:maxfreq, :, :, :)
 

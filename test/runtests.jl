@@ -33,6 +33,10 @@ using Statistics: mean
     @test psi[1, 2] < -1.0
     @test psi[2, 1] + psi[1, 2] == 0
 
+    # test data2para ##################################################
+    signal = rand(100, 3, 2)
+    @test_throws DimensionMismatch data2psi(signal, 100)
+
     # tests of int ####################################################
     @test PhaseSlopeIndex.int(3.14) == 3
     @test PhaseSlopeIndex.int(-2.72) == -2
