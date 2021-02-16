@@ -5,7 +5,7 @@
 [![Build Status](https://github.com/ssnio/PhaseSlopeIndex.jl/workflows/CI/badge.svg)](https://ssnio.github.io/PhaseSlopeIndex.jl/actions)
 [![Coverage](https://codecov.io/gh/ssnio/PhaseSlopeIndex.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ssnio/PhaseSlopeIndex.jl)
 
-This is a Julia implementation of the [*Phase Slope Index* method]((http://link.aps.org/abstract/PRL/v100/e234101)). Please refer to http://doc.ml.tu-berlin.de/causality/ for more information.
+This is a Julia implementation of the [*Phase Slope Index* method](http://link.aps.org/abstract/PRL/v100/e234101). Please refer to http://doc.ml.tu-berlin.de/causality/ for more information.
 
 ### Examples
 The only exported function is [`data2psi`](https://ssnio.github.io/PhaseSlopeIndex.jl/dev/#Functions). For detailed examples, refer to the [docs](https://ssnio.github.io/PhaseSlopeIndex.jl/dev/examples/) or the following notebook on the platform of your choice:
