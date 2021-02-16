@@ -100,7 +100,7 @@ function data2para(
     seglen::Integer,
     segshift::Integer,
     eplen::Integer,
-    freqlist::AbstractArray,
+    freqlist::AbstractArray{Int},
     method::String,
     subave::Bool,
     verbose::Bool
@@ -143,13 +143,19 @@ function data2para(
 
     # size(freqlist) = (freqs, nfbands)
     if length(freqlist) == 0
-        freqlist = reshape(Array(1:(int(seglen / 2) + 1)), (:, 1))
+        freqlist = reshape(1:(int(seglen / 2)) - 1, :, 1)
     elseif ndims(freqlist) == 1
         freqlist = reshape(freqlist, :, 1)
-    end
-    if size(freqlist, 1) < size(freqlist, 2)
-        verbose && @info "freqlist is transposed to (#freq, #nfbands)"
+    elseif ndims(freqlist) > 2
+        throw("freqlist must be a UnitRange or a 2D-Array!")
+    elseif size(freqlist, 1) < size(freqlist, 2)
         freqlist = freqlist'
+        verbose && @info "freqlist is transposed to (#freq, #nfbands)"
+    end
+    if maximum(freqlist) >= int(seglen / 2)
+        throw("Maximum frequency for freqlist is larger than the Nyquist frequency!")
+    elseif minimum(freqlist) < 1
+        throw("Minimum frequency for freqlist is 0 or negative!")
     end
     maxfreq = maximum(freqlist)  # max frequency of all frequency bands
     nfbands = size(freqlist, 2)  # number of frequency bands
@@ -231,6 +237,7 @@ C_{ij}(f) = \\frac{S_{ij}(f)}{\\sqrt{S_{ii}(f)~S_{jj}(f)}}
 ```
 
 is the complext coherency, and \$S\$ is the cross spectral matrix (returnd by `data2cs` function), \$\\delta f\$ is the frequency resolution, and \$\\mathfrak{I}\$ denotes taking the imaginary part.
+
 ### Arguments
   - `cs::AbstractArray`: Cross Spectral array with size (seglen, :, nchan, nchan)
 
@@ -358,7 +365,7 @@ calculates phase slope index (PSI)
 
   - `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
   - `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
-  - `freqlist::AbstractArray`: 2D Array where each column is a frequency band (default is full range)
+  - `freqlist::AbstractArray`: a UnitRange or 2D Array where each column is a frequency band (default is full range). Note that the DC component (0th frequency of FFT) is discarded and the values in the freqlist shall be Integer Hz values.
   - `method::String`: standard deviation estimation method (default is "jackknife")
   - `subave::Bool`: if true, subtract average across CS segments (default is false)
   - `segave::Bool`: if true, average across CS segments (default is true)
@@ -377,7 +384,7 @@ function data2psi(
     seglen::Integer;
     segshift::Integer=0,
     eplen::Integer=0,
-    freqlist::AbstractArray=Int[],
+    freqlist::AbstractArray{Int}=Int[],
     method::String="jackknife",
     subave::Bool=false,
     segave::Bool=true,
@@ -398,7 +405,7 @@ function data2psi(
 
     eposeg .*= window(seglen)
 
-    eposeg = view(fft(eposeg, 1), 1:maxfreq, :, :, :)
+    eposeg = view(fft(eposeg, 1), 2:maxfreq+1, :, :, :)
 
     # preallocation
     psi = Array{Float64}(undef, nchan, nchan, nfbands)

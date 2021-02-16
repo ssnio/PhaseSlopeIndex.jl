@@ -39,6 +39,42 @@ using Statistics: mean
         end
     end
 
+    # test freqlist ###################################################
+    ch1_ = rand(100000)
+    signal = [[ch1_[2:end];] [ch1_[1:(end - 1)];]]
+    psi_range, _ = data2psi(signal, 100, freqlist=1:49)
+    psi_default, _ = data2psi(signal, 100)  # default is based on seglen
+    @test all(psi_range == psi_default)
+
+    # auxiliary function for testing
+    """
+        sin_sum = v_sin(X, A, Ω, Φ)
+
+    returns an array summed over series of Sin waves with A-amplitudes, Ω-frequencies and Φ-phase delay
+    """
+    v_sin(X, A, Ω, Φ) = sum([a .* sin.(ω .* X .+ ϕ) for (a, ω, ϕ) in zip(A, Ω, Φ)])
+
+    nsamples_ = 200000
+    fs_ = 100  # sampling frequency (Hz)
+    f_range_ = 12:30  # beta frequency band [12-30] Hz
+    Ω_ = f_range_ * 2pi
+    X_ = range(0., nsamples_ / fs_, length = nsamples_)
+    A_ = rand(.1:.01:1., size(f_range_, 1))
+    Φ_ = rand(size(f_range_, 1))
+    Y_ = v_sin(X_, A_, Ω_, Φ_)
+    Y_ch1, Y_ch2 = Y_[5:end], Y_[1:end-4]
+    noise_ = randn(size(Y_ch1))
+    signal = [Y_ch1 Y_ch2] .+ noise_
+    seglen_ = fs_
+    psi_full_range, _ = data2psi(signal, seglen_)
+    psi_low, _ = data2psi(signal, seglen_, freqlist = 1:11)
+    psi_freq, _ = data2psi(signal, seglen_, freqlist = f_range_)
+    psi_high, _ = data2psi(signal, seglen_, freqlist = 31:49)
+    @test psi_full_range[1, 2] > 1.  # ch1 leading ch2
+    @test psi_freq[1, 2] > psi_full_range[1, 2]  # PSI higher in target frequency range
+    @test psi_freq[1, 2] > psi_low[1, 2]  # PSI higher in target frequency range
+    @test psi_freq[1, 2] > psi_high[1, 2]  # PSI higher in target frequency range
+
     # test data2para ##################################################
     # ndims(data) should be 2
     signal = rand(100, 3, 2)
