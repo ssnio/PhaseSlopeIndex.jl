@@ -7,8 +7,8 @@
 #md # * [![binder](https://mybinder.org/badge_logo.svg)](@__BINDER_ROOT_URL__/generated/examples.ipynb)
 #md # * [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](@__NBVIEWER_ROOT_URL__/generated/examples.ipynb)
 #
-# ### Acknowledgement
-# This work was funded by the German Federal Ministry of Education and Research [(BMBF)](https://www.bmbf.de/) in the project ALICE III under grant ref. 01IS18049B.
+#nb ### Acknowledgement
+#nb This work was funded by the German Federal Ministry of Education and Research ([BMBF](https://www.bmbf.de/)) in the project ALICE III under grant ref. 01IS18049B.
 #
 # ### Load packages
 
@@ -52,7 +52,7 @@ p1 = plot(
 
 plot(p1; layout=(1, 1), size=(800, 450))
 
-# ## PSI
+# ### PSI
 @doc data2psi
 
 # ## Example 1
