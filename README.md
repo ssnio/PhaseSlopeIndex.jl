@@ -14,7 +14,7 @@ The only exported function is [`data2psi`](https://ssnio.github.io/PhaseSlopeInd
 For detailed examples, please refer to the [docs](https://ssnio.github.io/PhaseSlopeIndex.jl/dev/examples/).
 
 ### Citation
-Please cite the following paper if you use this code in published work:
+Please [cite the following paper](https://github.com/ssnio/PhaseSlopeIndex.jl/blob/master/citation.bib) if you use this code in published work:
 > Nolte, G., Ziehe, A., Nikulin, V., Schlögl, A., Krämer, N., Brismar, T., & Müller, K.R. (2008), *[Robustly Estimating the Flow Direction of Information in Complex Physical Systems](http://link.aps.org/abstract/PRL/v100/e234101)*, Phys. Rev. Lett., 100, 234101. 
 
 ### Acknowledgement
