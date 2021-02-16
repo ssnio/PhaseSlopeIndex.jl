@@ -109,10 +109,10 @@ function data2para(
     if ndims(data) != 2
         data = squeeze(data)
         ndims(data) != 2 && throw(DimensionMismatch("data must be a 2D-array!"))
-        @info "data is squeezed to a 2D-array)"
+        verbose && @info "data is squeezed to a 2D-array)"
     end
     if size(data, 1) < size(data, 2)
-        @info "data is transposed to (#samples, #channels)"
+        verbose && @info "data is transposed to (#samples, #channels)"
         data = reshape(data, size(data, 2), size(data, 1))
     end
     if size(data, 1) < seglen
@@ -125,7 +125,7 @@ function data2para(
     # method shall always be lowercase
     method = lowercase(method)
     if eplen == 0
-        @warn "Epoch length = 0 => No estimation of standard deviation."
+        verbose && @warn "Epoch length = 0 => No estimation of standard deviation."
         method = "none"
     end
 
@@ -135,7 +135,7 @@ function data2para(
 
     if nep == 1 && subave == true
         subave = false
-        @warn "subave is set to false for continuous data"
+        verbose && @warn "subave is set to false for continuous data (nep = 1)"
     end
 
     segshift == 0 && (segshift = int(seglen / 2))
@@ -148,7 +148,7 @@ function data2para(
         freqlist = reshape(freqlist, :, 1)
     end
     if size(freqlist, 1) < size(freqlist, 2)
-        @info "freqlist is transposed to (#freq, #nfbands)"
+        verbose && @info "freqlist is transposed to (#freq, #nfbands)"
         freqlist = freqlist'
     end
     maxfreq = maximum(freqlist)  # max frequency of all frequency bands
