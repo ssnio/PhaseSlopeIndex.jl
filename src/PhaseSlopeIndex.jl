@@ -43,7 +43,7 @@ This detrend function is limited to linear orders (0th and 1st order).
 ### Arguments
 
   - `data::AbstractArray`: N-dim array where signal is in column-major order
-  - `n::Integer`: n=0 subtracts mean from data, n=1 removes linear trend
+  - `n::Integer`: `n = 0` subtracts mean from data, `n = 1` removes linear trend
 
 **Note**: shape of data must be (signal length, ...)
 """
@@ -80,19 +80,18 @@ end
 Extracts and builds a named tuple of parameters.
 
 ### Arguments
-
   - `data::AbstractArray`: NxM array for N data points in M channels.
   - `seglen::Integer`: segment length (determines the frequency resolution).
-  - `segshift::Integer`: number of bins by which neighboring segments are shifted.
-    e.g. segshift=seglen/2 makes overlapping segments
+  - `segshift::Integer`: number of bins by which neighboring segments are shifted
+    (e.g. `segshift = seglen / 2` makes overlapping segments).
   - `eplen::Integer`: length of epochs
-  - `freqlist::AbstractArray`: 2D Array where each column is a frequency band
+  - `freqlist::AbstractArray`: a UnitRange or 2D-Array where each column is a frequency band
   - `method::String`: standard deviation estimation method
-  - `subave::Bool`: if true, subtract average from CS segments (for continuous data, subave = false)
-  - `verbose::Bool`: if true, warnings and info logs would be echoed.
+  - `subave::Bool`: if `true`, subtract average from CS segments
+    (for continuous data, `subave = false`).
+  - `verbose::Bool`: if `true`, warnings and info logs would be echoed.
 
 ### Returns
-
   - `parameters::NamedTuple`: a named tuple of parameters
 """
 function data2para(
@@ -108,11 +107,11 @@ function data2para(
     # data dimension
     if ndims(data) != 2
         data = squeeze(data)
-        ndims(data) != 2 && throw(DimensionMismatch("data must be a 2D-array!"))
-        verbose && @info "data is squeezed to a 2D-array)"
+        ndims(data) != 2 && throw(DimensionMismatch("Data must be a 2D-array!"))
+        verbose && @info "Data is squeezed to a 2D-array)"
     end
     if size(data, 1) < size(data, 2)
-        verbose && @info "data is transposed to (#samples, #channels)"
+        verbose && @info "Data is transposed to (#samples, #channels)"
         data = reshape(data, size(data, 2), size(data, 1))
     end
     if size(data, 1) < seglen
@@ -160,7 +159,6 @@ function data2para(
     maxfreq = maximum(freqlist)  # max frequency of all frequency bands
     nfbands = size(freqlist, 2)  # number of frequency bands
 
-    # we use named tuples to book the parameters
     parameters = (
         data=data,
         nsamples=nsamples,
@@ -185,7 +183,6 @@ end
 Partitioning data into epochs and segments
 
 ### Arguments
-
   - `data::AbstractArray`: NxM array for N data points in M channels.
   - `seglen::Integer`: segment length
   - `nep::Integer`: number of epochs
@@ -194,10 +191,9 @@ Partitioning data into epochs and segments
   - `segshift::Integer`: number of bins by which neighboring segments are shifted.
 
 ### Returns
+  - `epseg::AbstractArray`: partitioned data into shape `(seglen, nep, nseg, nchan)`
 
-  - `epseg::AbstractArray`: partitioned data into shape (seglen, nep, nseg, nchan)
-
-**Note**: returned `epseg` may have more data entries than input data.
+**Note**: returned Array may have more data entries than input data.
 """
 function make_eposeg(
     data::AbstractArray,
@@ -236,13 +232,15 @@ where:
 C_{ij}(f) = \\frac{S_{ij}(f)}{\\sqrt{S_{ii}(f)~S_{jj}(f)}}
 ```
 
-is the complext coherency, and \$S\$ is the cross spectral matrix (returnd by `data2cs` function), \$\\delta f\$ is the frequency resolution, and \$\\mathfrak{I}\$ denotes taking the imaginary part.
+is the complext coherency, and \$S\$ is the cross spectral matrix
+(returnd by `data2cs` function), \$\\delta f\$ is the frequency resolution,
+and \$\\mathfrak{I}\$ denotes taking the imaginary part.
 
 ### Arguments
-  - `cs::AbstractArray`: Cross Spectral array with size (seglen, :, nchan, nchan)
+  - `cs::AbstractArray`: Cross Spectral array with shape `(seglen, nchan, nchan)`
 
 ### Returns
-  - phase slope index (::AbstractArray)
+  - phase slope index (::AbstractArray) with shape `(nchan, nchan)`
 
 **Note**: frequency resolution is assumed to be the resolution of freq. band!
 """
@@ -268,10 +266,10 @@ S_{ij}(f) = \\langle \\hat{y}_i(f) \\hat{y}_i^*(f)\\rangle .
 ```
 
 ### Arguments
-  - `data::AbstractArray`: Segmented data of shape (maxfreq, nep, nseg, nchan)
+  - `data::AbstractArray`: Segmented data of shape `(maxfreq, nep, nseg, nchan)`
 
 ### Return
-  - `cs::AbstractArray{Complex}`: Cross Spectral of shape (maxfreq, nep, nseg, nchan, nchan)
+  - `cs::AbstractArray{Complex}`: Cross Spectral of shape `(maxfreq, nep, nseg, nchan, nchan)`
 """
 function data2cs(data::AbstractArray)
     # cs: cross-spectral matrix
@@ -286,17 +284,15 @@ end
 preparing Cross Spectra for Phase Slope by segment averaging and subtraction
 
 ### Arguments
-
   - `data::AbstractArray`: Fourier-transformed detrended epoched segmented data.
   - `cs::AbstractArray`: Cross Spectra of data
-  - `fband::AbstractArray`: 1D array of frequency range for PSI calculation
+  - `fband::AbstractArray`: 1D-Array of frequency range for PSI calculation
   - `nep::Integer`: number of epochs
-  - `segave::Bool`: if true, averages across CS segments
-  - `subave::Bool`: if true, subtract average across CS segments
+  - `segave::Bool`: if `true`, averages across CS segments
+  - `subave::Bool`: if `true`, subtract average across CS segments
   - `method::String`: standard deviation estimation method
 
 ### Returns
-
   - `_cs_::AbstractArray`: segment averaged and subtracted Cross Spectra
 """
 function cs2cs_(
@@ -351,33 +347,35 @@ function cs2cs_(
 end
 
 """
-    data2psi(data, seglen [, segshift, eplen, freqlist, method,
-                             nboot, segave, subave, detrend])
+    data2psi(data, seglen ; segshift, eplen, freqlist, method,
+                            nboot, segave, subave, detrend)
 
 calculates phase slope index (PSI)
 
 ### Arguments
-
   - `data::AbstractArray`: NxM array for N data points in M channels
-  - `seglen::Integer`: segment length (determines the frequency resolution). If defining frequency bands, seglen must be the same as sampling frequency.
+  - `seglen::Integer`: segment length (determines the frequency resolution).
+    If defining `freqlist`, `seglen` must be the same as sampling frequency.
 
 *optional arguments*
 
-  - `segshift::Integer`: number of bins by which neighboring segments are shifted (default=seglen/2)
-  - `eplen::Integer`: length of epochs (if eplen=0, eplen is defaulted to number of samples)
-  - `freqlist::AbstractArray`: a UnitRange or 2D Array where each column is a frequency band (default is full range). Note that the DC component (0th frequency of FFT) is discarded and the values in the freqlist shall be Integer Hz values.
-  - `method::String`: standard deviation estimation method (default is "jackknife")
-  - `subave::Bool`: if true, subtract average across CS segments (default is false)
-  - `segave::Bool`: if true, average across CS segments (default is true)
-  - `nboot::Integer`: number of bootstrap resamplings (default is 100)
-  - `detrend::Bool`: if true, performs a 0th-order detrend across raw segments (default is false)
-  - `window::Function`: window function with interval length as sole necessary argument (default is Hanning)
-  - `verbose::Bool`: if true, warnings and info logs would be echoed. (default is false)
+  - `segshift::Integer`: number of bins by which neighboring segments are shifted
+    (default is `seglen / 2`)
+  - `eplen::Integer`: length of epochs (default is number of samples)
+  - `freqlist::AbstractArray`: a UnitRange or 2D-Array where each column is a frequency band
+    (default is full range). Note that the DC component (0th frequency of FFT)
+    is discarded and the values in the `freqlist` shall be Integer Hz values.
+  - `method::String`: standard deviation estimation method (default is `"jackknife"`)
+  - `subave::Bool`: if `true`, subtract average across Cross Spectra segments (default is `false`)
+  - `segave::Bool`: if `true`, average across Cross Spectra segments (default is `true`)
+  - `nboot::Integer`: number of bootstrap resampling iterations (default is `100`)
+  - `detrend::Bool`: if `true`, performs a 0th-order detrend across raw segments (default is `false`)
+  - `window::Function`: window function with interval length as sole necessary argument (default is `Hanning`)
+  - `verbose::Bool`: if `true`, warnings and info logs would be echoed. (default is `false`)
 
 ### Returns
-
-  - `psi::AbstractArray`: Phase Slope Index with shape (channel, channel, frequency bands)
-  - `psi_std::AbstractArray`: PSI estimated standard deviation with shape (channel, channel, frequency bands)
+  - `psi::AbstractArray`: Phase Slope Index with shape `(channel, channel, frequency bands)`
+  - `psi_std::AbstractArray`: PSI estimated standard deviation with shape `(channel, channel, frequency bands)`
 """
 function data2psi(
     data::AbstractArray,
