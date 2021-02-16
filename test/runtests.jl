@@ -17,16 +17,14 @@ using Statistics: mean
                 ch1_ = rand(1000)
                 signal = [[ch1_;] [ch1_;]]
                 psi, _ = data2psi(signal, 100, method=method_,
-                eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
-
+                    eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
                 @test psi == zeros(2, 2)
 
                 # channel 1 leading channel 2
                 ch1_ = rand(100000)
                 signal = [[ch1_[2:end];] [ch1_[1:(end - 1)];]]
                 psi, _ = data2psi(signal, 100, method=method_,
-                eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
-
+                    eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
                 @test psi[1, 1] == 0.0 && psi[2, 2] == 0.0
                 @test psi[1, 2] > 1.0 && psi[2, 1] + psi[1, 2] == 0.0
 
@@ -34,8 +32,7 @@ using Statistics: mean
                 ch2_ = rand(100000)
                 signal = [[ch2_[1:(end - 1)];] [ch2_[2:end];]]
                 psi, _ = data2psi(signal, 100, method=method_,
-                eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
-
+                    eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
                 @test psi[1, 1] == 0.0 && psi[2, 2] == 0.0
                 @test psi[1, 2] < -1.0 && psi[2, 1] + psi[1, 2] == 0.0
             end
