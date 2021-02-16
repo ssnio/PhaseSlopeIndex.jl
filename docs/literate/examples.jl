@@ -51,8 +51,8 @@ p1 = plot(
 
 plot(p1; layout=(1, 1), size=(800, 450))
 
-# ### PSI
-@doc data2psi
+#nb # ### PSI
+#nb @doc data2psi
 
 # ## Example 1
 # PSI is calculated over all frequencies for segmented (`seglen = 100`) but continuous data (single epoch, `nep = 1`) and estimation of error using Bootstrap method for 256 resampling iterations (`nboot=256`). The default window function ([Hanning window](https://en.wikipedia.org/wiki/Hann_function)) is used.
