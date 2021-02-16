@@ -352,7 +352,7 @@ calculates phase slope index (PSI)
 ### Arguments
 
   - `data::AbstractArray`: NxM array for N data points in M channels
-  - `seglen::Integer`: segment length (determines the frequency resolution)
+  - `seglen::Integer`: segment length (determines the frequency resolution). If defining frequency bands, seglen must be the same as sampling frequency.
 
 *optional arguments*
 
