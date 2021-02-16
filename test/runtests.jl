@@ -2,40 +2,68 @@ using PhaseSlopeIndex
 using Test
 using Statistics: mean
 
-@testset "PhaseSlopeIndex.jl" begin
+@time @testset "PhaseSlopeIndex.jl" begin
     # tests of data2psi ###############################################
     # two random signals
-    signal = [[rand(-1.0:0.0001:1.0, 1000000);] [rand(-1.0:0.0001:1.0, 1000000);]]
-    psi = data2psi(signal, 100)[1]
+    signal = [[rand(-1.0:1e-6:1.0, 1000000);] [rand(-1.0:1e-6:1.0, 1000000);]]
+    psi, _ = data2psi(signal, 100, subave=true, segave=true)
     @test all(isapprox(psi, zeros(2, 2); atol=0.01))
 
-    # channel 2 being exactly channel 1
-    ch1_ = rand(100000)
-    signal = [[ch1_;] [ch1_;]]
-    psi = data2psi(signal, 100)[1]
-    @test psi == zeros(2, 2)
+    # induced causality should always be inferred independent of optional arguments
+    for eplen_ in [0, 200], detrend_ in [true, false]
+        for segave_ in [true, false], subave_ in [true, false]
+            for method_ in ["jackknife", "bootstrap"]
+                # channel 2 being exactly channel 1
+                ch1_ = rand(1000)
+                signal = [[ch1_;] [ch1_;]]
+                psi, _ = data2psi(signal, 100, method=method_,
+                eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
 
-    # channel 1 leading channel 2
-    ch1_ = rand(100000)
-    signal = [[ch1_[2:end];] [ch1_[1:(end - 1)];]]
-    psi = data2psi(signal, 100)[1]
-    @test psi[1, 1] == 0.0
-    @test psi[2, 2] == 0.0
-    @test psi[1, 2] > 1.0
-    @test psi[2, 1] + psi[1, 2] == 0
+                @test psi == zeros(2, 2)
 
-    # channel 2 leading channel 1
-    ch2_ = rand(100000)
-    signal = [[ch2_[1:(end - 1)];] [ch2_[2:end];]]
-    psi = data2psi(signal, 100)[1]
-    @test psi[1, 1] == 0.0
-    @test psi[2, 2] == 0.0
-    @test psi[1, 2] < -1.0
-    @test psi[2, 1] + psi[1, 2] == 0
+                # channel 1 leading channel 2
+                ch1_ = rand(100000)
+                signal = [[ch1_[2:end];] [ch1_[1:(end - 1)];]]
+                psi, _ = data2psi(signal, 100, method=method_,
+                eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
+
+                @test psi[1, 1] == 0.0 && psi[2, 2] == 0.0
+                @test psi[1, 2] > 1.0 && psi[2, 1] + psi[1, 2] == 0.0
+
+                # channel 2 leading channel 1
+                ch2_ = rand(100000)
+                signal = [[ch2_[1:(end - 1)];] [ch2_[2:end];]]
+                psi, _ = data2psi(signal, 100, method=method_,
+                eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
+
+                @test psi[1, 1] == 0.0 && psi[2, 2] == 0.0
+                @test psi[1, 2] < -1.0 && psi[2, 1] + psi[1, 2] == 0.0
+            end
+        end
+    end
 
     # test data2para ##################################################
+    # ndims(data) should be 2
     signal = rand(100, 3, 2)
     @test_throws DimensionMismatch data2psi(signal, 100)
+
+    # squeeze
+    signal = rand(100, 1, 4)
+    @test data2psi(signal, 100)[1] == data2psi(signal[:, 1, :], 100)[1]
+
+    # size(data, 1) >!> seglen
+    signal = rand(50, 3)
+    @test_throws DimensionMismatch data2psi(signal, 100)
+
+    # if eplen == 0 then no std estimation
+    signal = [[rand(1000000);] [rand(1000000);]]
+    _, psi_std = data2psi(signal, 100)
+    @test all(isnan.(psi_std))
+
+    # if continuous data, subave shall not be true otherwise NaN is returned
+    signal = [[rand(1000000);] [rand(1000000);]]
+    psi, _ = data2psi(signal, 100, subave=true)
+    @test !all(isnan.(psi))
 
     # tests of int ####################################################
     @test PhaseSlopeIndex.int(3.14) == 3
