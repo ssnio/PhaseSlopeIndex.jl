@@ -8,7 +8,7 @@
 This is a Julia implementation of the [*Phase Slope Index* method](http://link.aps.org/abstract/PRL/v100/e234101). Please refer to http://doc.ml.tu-berlin.de/causality/ for more information.
 
 ### Examples
-The only exported function is [`data2psi`](https://ssnio.github.io/PhaseSlopeIndex.jl/dev/#Functions). For detailed examples, refer to the [docs](https://ssnio.github.io/PhaseSlopeIndex.jl/dev/examples/) or the following notebook on the platform of your choice:
+The only exported function is [`data2psi`](https://ssnio.github.io/PhaseSlopeIndex.jl/dev/#Functions). For detailed examples, refer to the [docs](https://ssnio.github.io/PhaseSlopeIndex.jl/dev/generated/examples/) or the following notebook on the platform of your choice:
 
 
 [![github](https://img.shields.io/badge/render-GitHub%20notebook-blue)](https://github.com/ssnio/PhaseSlopeIndex.jl/blob/gh-pages/dev/generated/examples.ipynb)
