@@ -12,7 +12,7 @@ The only exported function is [`data2psi`](https://ssnio.github.io/PhaseSlopeInd
 
 
 [![github](https://img.shields.io/badge/render-GitHub%20notebook-blue)](https://github.com/ssnio/PhaseSlopeIndex.jl/blob/gh-pages/dev/generated/examples.ipynb)
-[![binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ssnio/PhaseSlopeIndex.jl/gh-pages?filepath=dev/generated/examples.ipynb)
+<!-- [![binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ssnio/PhaseSlopeIndex.jl/gh-pages?filepath=dev/generated/examples.ipynb) -->
 <!-- [![nbviewer](https://img.shields.io/badge/render-nbviewer-orange.svg)](https://nbviewer.jupyter.org/github/ssnio/PhaseSlopeIndex.jl/blob/gh-pages/dev/generated/examples.ipynb) -->
 
 
