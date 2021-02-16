@@ -218,15 +218,24 @@ end
 """
     cs2ps(cs)
 
-Cross Spectra to Phase Slope
+Cross Spectra to Phase Slope as defined in Eq. 3 [Nolte et al. 2008]:
 
+```math
+\\tilde\\Psi_{ij}=\\mathfrak{I}\\left(\\sum_{f \\in F} C_{ij}^*(f)~C_{ij}(f + \\delta f)\\right)
+```
+
+where:
+
+```math
+C_{ij}(f) = \\frac{S_{ij}(f)}{\\sqrt{S_{ii}(f)~S_{jj}(f)}}
+```
+
+is the complext coherency, and \$S\$ is the cross spectral matrix (returnd by `data2cs` function), \$\\delta f\$ is the frequency resolution, and \$\\mathfrak{I}\$ denotes taking the imaginary part.
 ### Arguments
-
   - `cs::AbstractArray`: Cross Spectral array with size (seglen, :, nchan, nchan)
 
 ### Returns
-
-  - phase slope index (AbstractArray) as Eq. 3 of the reference paper
+  - phase slope index (::AbstractArray)
 
 **Note**: frequency resolution is assumed to be the resolution of freq. band!
 """
@@ -245,15 +254,17 @@ end
 """
     data2ps(data)
 
-Epoched segmented data to Cross Spectra
+Segmented data to Cross Spectra based on Eq. 2 [Nolte et al. 2008]:
+
+```math
+S_{ij}(f) = \\langle \\hat{y}_i(f) \\hat{y}_i^*(f)\\rangle .
+```
 
 ### Arguments
-
   - `data::AbstractArray`: Segmented data of shape (maxfreq, nep, nseg, nchan)
 
 ### Return
-
-  - `cs::AbstractArray{Complex}`: Cross Spectral as eq. 2 of reference paper.
+  - `cs::AbstractArray{Complex}`: Cross Spectral of shape (maxfreq, nep, nseg, nchan, nchan)
 """
 function data2cs(data::AbstractArray)
     # cs: cross-spectral matrix
