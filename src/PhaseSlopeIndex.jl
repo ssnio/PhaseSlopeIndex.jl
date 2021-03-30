@@ -40,6 +40,7 @@ end
 
 (in place) Linear detrend of signals along first axis removing the n-th order polynomial.
 This detrend function is limited to linear orders (0th and 1st order).
+
 ### Arguments
 
   - `data::AbstractArray`: N-dim array where signal is in column-major order
@@ -80,6 +81,7 @@ end
 Extracts and builds a named tuple of parameters.
 
 ### Arguments
+
   - `data::AbstractArray`: NxM array for N data points in M channels.
   - `seglen::Integer`: segment length (determines the frequency resolution).
   - `segshift::Integer`: number of bins by which neighboring segments are shifted
@@ -92,6 +94,7 @@ Extracts and builds a named tuple of parameters.
   - `verbose::Bool`: if `true`, warnings and info logs would be echoed.
 
 ### Returns
+
   - `parameters::NamedTuple`: a named tuple of parameters
 """
 function data2para(
@@ -102,7 +105,7 @@ function data2para(
     freqlist::AbstractArray{Int},
     method::String,
     subave::Bool,
-    verbose::Bool
+    verbose::Bool,
 )
     # data dimension
     if ndims(data) != 2
@@ -142,7 +145,7 @@ function data2para(
 
     # size(freqlist) = (freqs, nfbands)
     if length(freqlist) == 0
-        freqlist = reshape(1:(int(seglen / 2)) - 1, :, 1)
+        freqlist = reshape(1:((int(seglen / 2)) - 1), :, 1)
     elseif ndims(freqlist) == 1
         freqlist = reshape(freqlist, :, 1)
     elseif ndims(freqlist) > 2
@@ -183,6 +186,7 @@ end
 Partitioning data into epochs and segments
 
 ### Arguments
+
   - `data::AbstractArray`: NxM array for N data points in M channels.
   - `seglen::Integer`: segment length
   - `nep::Integer`: number of epochs
@@ -191,6 +195,7 @@ Partitioning data into epochs and segments
   - `segshift::Integer`: number of bins by which neighboring segments are shifted.
 
 ### Returns
+
   - `epseg::AbstractArray`: partitioned data into shape `(seglen, nep, nseg, nchan)`
 
 **Note**: returned Array may have more data entries than input data.
@@ -237,9 +242,11 @@ is the complext coherency, and \$S\$ is the cross spectral matrix
 and \$\\mathfrak{I}\$ denotes taking the imaginary part.
 
 ### Arguments
+
   - `cs::AbstractArray`: Cross Spectral array with shape `(seglen, nchan, nchan)`
 
 ### Returns
+
   - phase slope index (::AbstractArray) with shape `(nchan, nchan)`
 
 **Note**: frequency resolution is assumed to be the resolution of freq. band!
@@ -266,9 +273,11 @@ S_{ij}(f) = \\langle \\hat{y}_i(f) \\hat{y}_i^*(f)\\rangle .
 ```
 
 ### Arguments
+
   - `data::AbstractArray`: Segmented data of shape `(maxfreq, nep, nseg, nchan)`
 
 ### Return
+
   - `cs::AbstractArray{Complex}`: Cross Spectral of shape `(maxfreq, nep, nseg, nchan, nchan)`
 """
 function data2cs(data::AbstractArray)
@@ -284,6 +293,7 @@ end
 preparing Cross Spectra for Phase Slope by segment averaging and subtraction
 
 ### Arguments
+
   - `data::AbstractArray`: Fourier-transformed detrended epoched segmented data.
   - `cs::AbstractArray`: Cross Spectra of data
   - `fband::AbstractArray`: 1D-Array of frequency range for PSI calculation
@@ -293,6 +303,7 @@ preparing Cross Spectra for Phase Slope by segment averaging and subtraction
   - `method::String`: standard deviation estimation method
 
 ### Returns
+
   - `_cs_::AbstractArray`: segment averaged and subtracted Cross Spectra
 """
 function cs2cs_(
@@ -353,6 +364,7 @@ end
 calculates phase slope index (PSI)
 
 ### Arguments
+
   - `data::AbstractArray`: NxM array for N data points in M channels
   - `seglen::Integer`: segment length (determines the frequency resolution).
     If defining `freqlist`, `seglen` must be the same as sampling frequency.
@@ -374,6 +386,7 @@ calculates phase slope index (PSI)
   - `verbose::Bool`: if `true`, warnings and info logs would be echoed. (default is `false`)
 
 ### Returns
+
   - `psi::AbstractArray`: Phase Slope Index with shape `(channel, channel, frequency bands)`
   - `psi_std::AbstractArray`: PSI estimated standard deviation with shape `(channel, channel, frequency bands)`
 """
@@ -389,7 +402,7 @@ function data2psi(
     nboot::Integer=100,
     detrend::Bool=false,
     window::Function=hanning_fun,
-    verbose::Bool=false
+    verbose::Bool=false,
 )
     (data, nsamples, nchan, eplen, nep, method, subave, segshift, nseg, freqlist, maxfreq, nfbands) = data2para(
         data, seglen, segshift, eplen, freqlist, method, subave, verbose
@@ -403,7 +416,7 @@ function data2psi(
 
     eposeg .*= window(seglen)
 
-    eposeg = view(fft(eposeg, 1), 2:maxfreq+1, :, :, :)
+    eposeg = view(fft(eposeg, 1), 2:(maxfreq + 1), :, :, :)
 
     # preallocation
     psi = Array{Float64}(undef, nchan, nchan, nfbands)

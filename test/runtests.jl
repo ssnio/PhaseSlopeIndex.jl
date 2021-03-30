@@ -6,7 +6,7 @@ using Statistics: mean
     # tests of data2psi ###############################################
     # two random signals
     signal = [[randn(1000000);] [randn(1000000);]]
-    psi, _ = data2psi(signal, 100, subave=true, segave=true)
+    psi, _ = data2psi(signal, 100; subave=true, segave=true)
     @test all(isapprox(psi, zeros(2, 2); atol=0.01))
 
     # induced causality should always be inferred independent of optional arguments
@@ -16,23 +16,44 @@ using Statistics: mean
                 # channel 2 being exactly channel 1
                 ch1_ = randn(1000)
                 signal = [[ch1_;] [ch1_;]]
-                psi, _ = data2psi(signal, 100, method=method_,
-                    eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
+                psi, _ = data2psi(
+                    signal,
+                    100;
+                    method=method_,
+                    eplen=eplen_,
+                    detrend=detrend_,
+                    segave=segave_,
+                    subave=subave_,
+                )
                 @test psi == zeros(2, 2)
 
                 # channel 1 leading channel 2
                 ch1_ = randn(100000)
                 signal = [[ch1_[2:end];] [ch1_[1:(end - 1)];]]
-                psi, _ = data2psi(signal, 100, method=method_,
-                    eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
+                psi, _ = data2psi(
+                    signal,
+                    100;
+                    method=method_,
+                    eplen=eplen_,
+                    detrend=detrend_,
+                    segave=segave_,
+                    subave=subave_,
+                )
                 @test psi[1, 1] == 0.0 && psi[2, 2] == 0.0
                 @test psi[1, 2] > 1.0 && psi[2, 1] + psi[1, 2] == 0.0
 
                 # channel 2 leading channel 1
                 ch2_ = randn(100000)
                 signal = [[ch2_[1:(end - 1)];] [ch2_[2:end];]]
-                psi, _ = data2psi(signal, 100, method=method_,
-                    eplen=eplen_, detrend=detrend_, segave=segave_, subave=subave_)
+                psi, _ = data2psi(
+                    signal,
+                    100;
+                    method=method_,
+                    eplen=eplen_,
+                    detrend=detrend_,
+                    segave=segave_,
+                    subave=subave_,
+                )
                 @test psi[1, 1] == 0.0 && psi[2, 2] == 0.0
                 @test psi[1, 2] < -1.0 && psi[2, 1] + psi[1, 2] == 0.0
             end
@@ -42,15 +63,15 @@ using Statistics: mean
     # test freqlist ###################################################
     ch1_ = randn(100000)
     signal = [[ch1_[2:end];] [ch1_[1:(end - 1)];]]
-    psi_range, _ = data2psi(signal, 100, freqlist=1:49)
+    psi_range, _ = data2psi(signal, 100; freqlist=1:49)
     psi_default, _ = data2psi(signal, 100)  # default is based on seglen
     @test all(psi_range == psi_default)
 
     # auxiliary function for testing
     """
-        sin_sum = v_sin(X, A, Ω, Φ)
+        sin_sum = v_sin(X, A, Ω, Φ
 
-    returns an array summed over series of Sin waves with A-amplitudes, Ω-frequencies and Φ-phase delay
+    returns an array summed over series of Sin waves with A-amplitudes, Ω-frequencies and Φ-phase del
     """
     v_sin(X, A, Ω, Φ) = sum([a .* sin.(ω .* X .+ ϕ) for (a, ω, ϕ) in zip(A, Ω, Φ)])
 
@@ -58,19 +79,19 @@ using Statistics: mean
     fs_ = 100  # sampling frequency (Hz)
     f_range_ = 12:30  # beta frequency band [12-30] Hz
     Ω_ = f_range_ * 2pi
-    X_ = range(0., nsamples_ / fs_, length = nsamples_)
-    A_ = rand(.1:.01:1., size(f_range_, 1))
+    X_ = range(0.0, nsamples_ / fs_; length=nsamples_)
+    A_ = rand(0.1:0.01:1.0, size(f_range_, 1))
     Φ_ = rand(size(f_range_, 1))
     Y_ = v_sin(X_, A_, Ω_, Φ_)
-    Y_ch1, Y_ch2 = Y_[5:end], Y_[1:end-4]
+    Y_ch1, Y_ch2 = Y_[5:end], Y_[1:(end - 4)]
     noise_ = randn(size(Y_ch1))
     signal = [Y_ch1 Y_ch2] .+ noise_
     seglen_ = fs_
     psi_full_range, _ = data2psi(signal, seglen_)
-    psi_low, _ = data2psi(signal, seglen_, freqlist = 1:11)
-    psi_freq, _ = data2psi(signal, seglen_, freqlist = f_range_)
-    psi_high, _ = data2psi(signal, seglen_, freqlist = 31:49)
-    @test psi_full_range[1, 2] > 1.  # ch1 leading ch2
+    psi_low, _ = data2psi(signal, seglen_; freqlist=1:11)
+    psi_freq, _ = data2psi(signal, seglen_; freqlist=f_range_)
+    psi_high, _ = data2psi(signal, seglen_; freqlist=31:49)
+    @test psi_full_range[1, 2] > 1.0  # ch1 leading ch2
     @test psi_freq[1, 2] > psi_full_range[1, 2]  # PSI higher in target frequency range
     @test psi_freq[1, 2] > psi_low[1, 2]  # PSI higher in target frequency range
     @test psi_freq[1, 2] > psi_high[1, 2]  # PSI higher in target frequency range
@@ -95,7 +116,7 @@ using Statistics: mean
 
     # if continuous data, subave shall not be true otherwise NaN is returned
     signal = [[randn(1000000);] [randn(1000000);]]
-    psi, _ = data2psi(signal, 100, subave=true)
+    psi, _ = data2psi(signal, 100; subave=true)
     @test !all(isnan.(psi))
 
     # tests of int ####################################################
