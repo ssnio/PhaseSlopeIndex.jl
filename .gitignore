@@ -1,17 +1,18 @@
 # Julia files
-*.jl.*.cov		
-*.jl.cov		
-*.jl.mem	
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
 
 # Notebooks
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 
-# Manifest 
-Manifest.toml		
+# Manifest
+Manifest.toml
 
 # VSCode
-/.vscode		
+/.vscode
+.vscode
 
 # macOS specific
-.DS_Store		
+.DS_Store
