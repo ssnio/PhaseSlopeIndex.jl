@@ -105,8 +105,8 @@ function data2para(
     freqlist::AbstractArray{Int},
     method::String,
     subave::Bool,
-    verbose::Bool,
-)
+    verbose::Bool
+    )
     # data dimension
     if ndims(data) != 2
         data = squeeze(data)
@@ -208,7 +208,7 @@ function make_eposeg(
     nseg::Integer,
     nchan::Integer,
     segshift::Integer,
-)::AbstractArray
+    )::AbstractArray
 
     # preallocation
     epseg = Array{Float64}(undef, seglen, nep, nseg, nchan)
@@ -314,7 +314,7 @@ function cs2cs_(
     segave::Bool,
     subave::Bool,
     method::String,
-)
+    )
     if segave
         if method == "bootstrap"
             randboot = rand(1:nep, nep)
@@ -402,8 +402,9 @@ function data2psi(
     nboot::Integer=100,
     detrend::Bool=false,
     window::Function=hanning_fun,
-    verbose::Bool=false,
-)
+    verbose::Bool=false
+    )
+
     (data, nsamples, nchan, eplen, nep, method, subave, segshift, nseg, freqlist, maxfreq, nfbands) = data2para(
         data, seglen, segshift, eplen, freqlist, method, subave, verbose
     )

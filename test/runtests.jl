@@ -69,9 +69,10 @@ using Statistics: mean
 
     # auxiliary function for testing
     """
-        sin_sum = v_sin(X, A, Ω, Φ
+        sin_sum = v_sin(X, A, Ω, Φ)
 
-    returns an array summed over series of Sin waves with A-amplitudes, Ω-frequencies and Φ-phase del
+    returns an array summed over series of Sin waves with A-amplitudes,
+        Ω-frequencies and Φ-phase delay
     """
     v_sin(X, A, Ω, Φ) = sum([a .* sin.(ω .* X .+ ϕ) for (a, ω, ϕ) in zip(A, Ω, Φ)])
 
