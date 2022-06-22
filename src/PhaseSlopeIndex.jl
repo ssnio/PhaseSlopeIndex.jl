@@ -376,7 +376,7 @@ calculates phase slope index (PSI)
   - `eplen::Integer`: length of epochs (default is number of samples)
   - `freqlist::AbstractArray`: a UnitRange or 2D-Array where each column is a frequency band
     (default is full range). Note that the DC component (0th frequency of FFT)
-    is discarded and the values in the `freqlist` shall be Integer Hz values.
+    is discarded, and `freqlist` shall only include integer values.
   - `method::String`: standard deviation estimation method (default is `"jackknife"`)
   - `subave::Bool`: if `true`, subtract average across Cross Spectra segments (default is `false`)
   - `segave::Bool`: if `true`, average across Cross Spectra segments (default is `true`)
